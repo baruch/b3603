@@ -62,10 +62,10 @@ The below was decoded by [bal00](http://www.reddit.com/r/arduino/comments/2so02f
 
 Right side:
 
-* Top four (1-4) pins are GND
-* Next two (5-6) are Vcc +5V
-* 7 is unknown
-* 8 is unknown, has 3.15V on it constantly
+* Top four (1-4) pins are GND (seems wrong)
+* Next two (5-6) are Vcc +5V (seems wrong)
+* 7 is connected to MCU UART RX
+* 8 is connected to MCU UART TX
 
 Left side (Top to bottom):
 
@@ -76,4 +76,4 @@ Left side (Top to bottom):
 * Pin 5: Vout control, 72mV/V + 42mV
 * Pin 6: Enable control, 0V = output on, 5V = output off
 * Pin 7: CC/CV sense, CV = 0.47V, CC = 2.5V
-* Pin 8: Unknown, has 3.15V on it constantly
+* Pin 8: Connected to MCU pin 13 (PC3)

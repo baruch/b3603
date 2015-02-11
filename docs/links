@@ -1,4 +1,6 @@
 Review of the B3603 with lots of data about its parts:
 http://www.eevblog.com/forum/reviews/b3603-dcdc-buck-converter-mini-review-and-how-the-set-key-could-be-fatal/
 
-
+Hints about the 3461AH 7-segment 4-digit display:
+http://forum.arduino.cc/index.php?topic=139675.0
+(34 = 3.4" 7 segment, 61 = specific type, A is common cathode)

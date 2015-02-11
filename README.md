@@ -77,3 +77,9 @@ Left side (Top to bottom):
 * Pin 6: Enable control, 0V = output on, 5V = output off
 * Pin 7: CC/CV sense, CV = 0.47V, CC = 2.5V
 * Pin 8: Connected to MCU pin 13 (PC3)
+
+#### Pinouts of 74HC595 chips
+
+There are two 74HC595 TSSOP16, these control the 4 digit 7 segment display, and possibly the leds as well. The 7 segment display has 12 pins and is controlled constantly to create a persistence-of-vision effect.
+
+![74HC595 pinout](docs/74HC595_TSSOP16.png)

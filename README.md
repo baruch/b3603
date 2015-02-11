@@ -1,4 +1,17 @@
-## Control Board
+# B3603
+
+## Regulator Board (bottom)
+
+![Bottom Board Side 1](docs/BottomBoardSide1.jpg)
+
+![Bottom Board Side 2](docs/BottomBoardSide2.jpg)
+
+## Control Board (top)
+
+![Top Board Side 1](docs/TopBoardSide1.jpg)
+
+![Top Board Side 2](docs/TopBoardSide2.jpg)
+
 
 ### MCU
 
@@ -44,6 +57,8 @@ Lets name the different pinout components, left and right are as seen looking at
 #### Bottom Board Interface
 
 The below was decoded by [bal00](http://www.reddit.com/r/arduino/comments/2so02f/can_anyone_recommend_a_cheap_cheerful_bench_power/cnrjdxo).
+
+![Control pinouts](docs/control_pinouts.png)
 
 Right side:
 

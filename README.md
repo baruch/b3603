@@ -62,7 +62,7 @@ The below was decoded by [bal00](http://www.reddit.com/r/arduino/comments/2so02f
 
 Right side:
 
-* Top four (1-4) pins are GND (seems wrong)
+* Top four (1-4) pins are GND
 * Next two (5-6) are Vcc +5V (seems wrong)
 * 7 is connected to MCU UART RX
 * 8 is connected to MCU UART TX

@@ -33,26 +33,28 @@ Lets name the different pinout components, left and right are as seen looking at
 
 ![STM8S003F3 TSSOP20 pins](docs/STM8S003F3 pinout.png)
 
-* Pin 1: UART1\_CK/TIM2\_CH1/BEEP/(HS) PD4 -- 
-* Pin 2: UART1\_TX -- Serial connector Pin 2 -- Right connector pin 8
-* Pin 3: UART1\_RX -- Serial connector Pin 4 -- Right connector pin 7
-* Pin 4: NRST -- ?
-* Pin 5: OSCIN/PA1 -- ?
-* Pin 6: OSCOUT/PA2 -- ?
-* Pin 7: Vss (GND)
-* Pin 8: Vcap
-* Pin 9: Vdd
-* Pin 10: SPI\_NSS / TIM2\_CH3 / PA3 (HS) -- ?
-* Pin 11: PB5 (T) / I2C\_SDA / TIM1\_BKIN -- Left connector Pin 7 (CV/CC status)
-* Pin 12: PB4 (T) / I2C\_SCL / ADC\_ETR -- Left connector Pin 6 (Enable)
-* Pin 13: PC3 (HS) / TIM1\_CH3 [TLI] [TIM1_CH1N]-- Left Connector Pin 8 (?)
-* Pin 14: PC4 (HS) / TIM1\_CH4 / CLK\_CCO / AIN2 / TIM1\_CH2N -- Left connector Pin 1 (Iout sense)
-* Pin 15: PC5 (HS) / SPI\_SCK / TIM2\_CH1 -- Left connector Pin 4 (Iout set)
-* Pin 16: PC6 (HS) / SPI\_MOSI / TIM1\_CH1 -- ?
-* Pin 17: PC7 (HS) / SPI\_MISO / TIM1\_CH2 -- ?
-* Pin 18: PD1 (HS) / SWIM -- ?
-* Pin 19: PD2 (HS) / AIN3 / TIM2\_CH3 -- Left connector Pin 2 (Vout sense)
-* Pin 20: PD3 (HS) / AIN4 / TIM2\_CH2 / ADC\_ETR -- Left connector Pin 3 (Vin sense)
+| MCU pin | MCU Function | Board Connector | Board Connector Pin | Board Connector Name
+| ------- | -------------|-----------------|---------------------|-----
+| Pin 1 | UART1\_CK/TIM2\_CH1/BEEP/(HS) PD4 | ? | ? | ?
+| Pin 2 | UART1\_TX | Serial connector | Pin 2 | TX
+| Pin 3 | UART1\_RX | Serial connector | Pin 4 | RX
+| Pin 4 | NRST | SWIM | Pin 1 | SWIM NRST
+| Pin 5 | OSCIN/PA1 | ? | ? | ?
+| Pin 6 | OSCOUT/PA2 | ? | ? | ?
+| Pin 7 | Vss (GND) | | |
+| Pin 8 | Vcap | | |
+| Pin 9 | Vdd | | |
+| Pin 10 | SPI\_NSS / TIM2\_CH3 / PA3 (HS) | ? | ? | ?
+| Pin 11 | PB5 (T) / I2C\_SDA / TIM1\_BKIN | Left connector | Pin 7 | CV/CC status
+| Pin 12 | PB4 (T) / I2C\_SCL / ADC\_ETR | Left connector | Pin 6 | Enable Output
+| Pin 13 | PC3 (HS) / TIM1\_CH3 [TLI] [TIM1_CH1N]| Left Connector | Pin 8 | ? 
+| Pin 14 | PC4 (HS) / TIM1\_CH4 / CLK\_CCO / AIN2 / TIM1\_CH2N | Left connector | Pin 1 | Iout sense
+| Pin 15 | PC5 (HS) / SPI\_SCK / TIM2\_CH1 | Left connector | Pin 4 | Iout set
+| Pin 16 | PC6 (HS) / SPI\_MOSI / TIM1\_CH1 | ? | ? | ?
+| Pin 17 | PC7 (HS) / SPI\_MISO / TIM1\_CH2 | ? | ? | ?
+| Pin 18 | PD1 (HS) / SWIM | SWIM | Pin 3 | SWIM
+| Pin 19 | PD2 (HS) / AIN3 / TIM2\_CH3 | Left connector | Pin 2 | Vout sense
+| Pin 20 | PD3 (HS) / AIN4 / TIM2\_CH2 / ADC\_ETR | Left connector | Pin 3 | Vin sense
 
 #### Bottom Board Interface
 

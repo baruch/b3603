@@ -1,5 +1,10 @@
 # B3603
 
+This project is about reverse engineering the B3603 control board and figuring
+out how it works, then it should be possible to create an alternative firmware.
+Either by driving it with another board on the same control points or by
+replacing the original firmware with one of my own.
+
 ## Regulator Board (bottom)
 
 ![Bottom Board Side 1](docs/BottomBoardSide1.jpg)

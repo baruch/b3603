@@ -79,11 +79,11 @@ Left side (Top to bottom):
 * Pin 1: Iout sense, 970mV/A + 140mV
 * Pin 2: Vout sense, 72mV/V + 42mV
 * Pin 3: Vin sense, 62mV/V
-* Pin 4: Iout control, 970mV/A + 140mV
-* Pin 5: Vout control, 72mV/V + 42mV
-* Pin 6: Enable control, 0V = output on, 5V = output off
+* Pin 4: Iout control, 970mV/A + 140mV (PWM controlled, off when output off)
+* Pin 5: Vout control, 72mV/V + 42mV (PWM controlled, off when output off)
+* Pin 6: Enable control, 0V = output on, 5V = output off (Digitally controlled)
 * Pin 7: CC/CV sense, CV = 0.47V, CC = 2.5V
-* Pin 8: Connected to MCU pin 13 (PC3)
+* Pin 8: Connected to MCU pin 13 (PC3), unknown function
 
 #### Pinouts of 74HC595 chips
 

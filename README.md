@@ -56,10 +56,14 @@ Lets name the different pinout components, left and right are as seen looking at
 | Pin 14 | PC4 (HS) / TIM1\_CH4 / CLK\_CCO / AIN2 / TIM1\_CH2N | Left connector | Pin 1 | Iout sense
 | Pin 15 | PC5 (HS) / SPI\_SCK / TIM2\_CH1 | Left connector | Pin 5 | Vout set
 | Pin 16 | PC6 (HS) / SPI\_MOSI / TIM1\_CH1 | Left connector | Pin 4 | Iout set
-| Pin 17 | PC7 (HS) / SPI\_MISO / TIM1\_CH2 | ? | ? | ?
-| Pin 18 | PD1 (HS) / SWIM | SWIM | Pin 3 | SWIM
+| Pin 17 | PC7 (HS) / SPI\_MISO / TIM1\_CH2 | Button |  | Button 1
+| Pin 18 | PD1 (HS) / SWIM | SWIM | Pin 3 | SWIM & Button 2
 | Pin 19 | PD2 (HS) / AIN3 / TIM2\_CH3 | Left connector | Pin 2 | Vout sense
 | Pin 20 | PD3 (HS) / AIN4 / TIM2\_CH2 / ADC\_ETR | Left connector | Pin 3 | Vin sense
+
+I suspect that the two right buttons (3 & 4) are connected to the same pins as
+the UART TX & RX, which will make them useless since serial communication is
+more important to me than buttons.
 
 #### Bottom Board Interface
 

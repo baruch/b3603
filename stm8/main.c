@@ -21,6 +21,10 @@ uint8_t uart_read_buf[64];
 uint8_t uart_read_len;
 uint8_t read_newline;
 
+uint16_t cal_vin;
+uint16_t cal_vout;
+uint16_t cal_cout;
+
 uint8_t cfg_name[17];
 uint8_t cfg_default;
 uint8_t cfg_output;
@@ -343,6 +347,10 @@ void config_load(void)
 	cfg_cset = 1000;
 	cfg_vshutdown = 0;
 	cfg_cshutdown = 0;
+
+	cal_vin = 54;
+	cal_vout = 54;
+	cal_cout = 2;
 }
 
 void read_state(void)
@@ -360,15 +368,15 @@ void read_state(void)
 
 		switch (ch) {
 			case 2:
-				state_cout = val;
+				state_cout = val * cal_cout;
 				ch = 3;
 				break;
 			case 3:
-				state_vout = val;
+				state_vout = val * cal_vout;
 				ch = 4;
 				break;
 			case 4:
-				state_vin = val;
+				state_vin = val * cal_vin;
 				ch = 2;
 				break;
 		}

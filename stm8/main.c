@@ -5,6 +5,14 @@
 #include <stdint.h>
 #include <ctype.h>
 
+const uint16_t cap_vmin = 10; // 10 mV
+const uint16_t cap_vmax = 35000; // 35 V
+const uint16_t cap_vstep = 1; // 1mV
+
+const uint16_t cap_cmin = 10; // 10 mA
+const uint16_t cap_cmax = 3000; // 3 A
+const uint16_t cap_cstep = 10; // 10 mA
+
 uint8_t uart_write_buf[64];
 uint8_t uart_write_start;
 uint8_t uart_write_len;
@@ -14,6 +22,17 @@ uint8_t uart_read_len;
 uint8_t read_newline;
 
 uint8_t cfg_name[17];
+uint8_t cfg_default;
+uint8_t cfg_output;
+uint16_t cfg_vset;
+uint16_t cfg_cset;
+uint16_t cfg_vshutdown;
+uint16_t cfg_cshutdown;
+
+uint16_t state_vin;
+uint16_t state_vout;
+uint16_t state_cout;
+uint8_t state_constant_current; // If false, we are in constant voltage
 
 uint8_t uart_write_ready(void)
 {
@@ -27,7 +46,8 @@ uint8_t uart_read_available(void)
 
 void uart_write_ch(const char ch)
 {
-	USART1_DR = ch;
+	if (uart_write_len < sizeof(uart_write_buf))
+		uart_write_buf[uart_write_len++] = ch;
 }
 
 void uart_flush_write()
@@ -58,10 +78,43 @@ void uart_write_str(const char *str)
 	}
 }
 
+void uart_write_digit(uint16_t digit)
+{
+	if (digit > 9)
+		uart_write_ch('X');
+	else
+		uart_write_ch('0' + digit);
+}
+
+void uart_write_fixed_point(uint16_t val)
+{
+	uint16_t digit = val / 10000;
+
+	if (digit > 0)
+		uart_write_digit(digit);
+
+	digit = val / 1000;
+	digit = digit % 10;
+	uart_write_digit(digit);
+
+	uart_write_ch('.');
+
+	digit = val / 100;
+	digit = digit % 10;
+	uart_write_digit(digit);
+
+	digit = val / 10;
+	digit = digit % 10;
+	uart_write_digit(digit);
+
+	digit = val % 10;
+	uart_write_digit(digit);
+}
+
 void uart_write_from_buf(void)
 {
 	if (uart_write_len > 0 && uart_write_ready()) {
-		uart_write_ch(uart_write_buf[uart_write_start]);
+		USART1_DR = uart_write_buf[uart_write_start];
 		uart_write_start++;
 		uart_write_len--;
 
@@ -126,6 +179,52 @@ void process_input()
 	} else if (strcmp(uart_read_buf, "NAME") == 0) {
 		uart_write_str("NAME: ");
 		uart_write_str(cfg_name);
+		uart_write_str("\r\n");
+	} else if (strcmp(uart_read_buf, "VLIST") == 0) {
+		uart_write_str("VLIST: ");
+		uart_write_fixed_point(cap_vmin);
+		uart_write_ch('/');
+		uart_write_fixed_point(cap_vmax);
+		uart_write_ch('/');
+		uart_write_fixed_point(cap_vstep);
+		uart_write_str("\r\n");
+	} else if (strcmp(uart_read_buf, "CLIST") == 0) {
+		uart_write_str("CLIST: ");
+		uart_write_fixed_point(cap_cmin);
+		uart_write_ch('/');
+		uart_write_fixed_point(cap_cmax);
+		uart_write_ch('/');
+		uart_write_fixed_point(cap_cstep);
+		uart_write_str("\r\n");
+	} else if (strcmp(uart_read_buf, "CONFIG") == 0) {
+		uart_write_str("CONFIG: ");
+		uart_write_ch('0' + cfg_output);
+		uart_write_ch('/');
+		uart_write_fixed_point(cfg_vset);
+		uart_write_ch('/');
+		uart_write_fixed_point(cfg_cset);
+		uart_write_ch('/');
+		if (cfg_vshutdown == 0)
+			uart_write_str("DISABLED");
+		else
+			uart_write_fixed_point(cfg_vshutdown);
+		uart_write_ch('/');
+		if (cfg_cshutdown == 0)
+			uart_write_str("DISABLED");
+		else
+			uart_write_fixed_point(cfg_cshutdown);
+		uart_write_str("\r\n");
+	} else if (strcmp(uart_read_buf, "STATUS") == 0) {
+		uart_write_str("STATUS: ");
+		uart_write_ch('0' + cfg_output);
+		uart_write_ch('/');
+		uart_write_fixed_point(state_vin);
+		uart_write_ch('/');
+		uart_write_fixed_point(state_vout);
+		uart_write_ch('/');
+		uart_write_fixed_point(state_cout);
+		uart_write_ch('/');
+		uart_write_ch(state_constant_current ? 'C' : 'V');
 		uart_write_str("\r\n");
 	} else {
 		// Process commands with arguments
@@ -200,6 +299,12 @@ void pinout_init()
 void config_load(void)
 {
 	strcpy(cfg_name, "Unnamed");
+	cfg_default = 0;
+	cfg_output = 0;
+	cfg_vset = 5000;
+	cfg_cset = 1000;
+	cfg_vshutdown = 0;
+	cfg_cshutdown = 0;
 }
 
 int main()
@@ -212,7 +317,7 @@ int main()
 
 	config_load();
 
-	uart_write_str("B3606 starting\r\n");
+	uart_write_str("\r\nB3606 starting: Version " FW_VERSION "\r\n");
 
 	do {
 		uart_write_from_buf();

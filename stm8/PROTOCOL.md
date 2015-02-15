@@ -135,7 +135,7 @@ Reports all state variables:
 * Vin -- Voltage Input to the unit
 * Vout -- Actual voltage output
 * Iout -- Actual current output
-* CCCV -- "1" if we are in constant current, "0" if we are in constant voltage
+* CCCV -- "C" if we are in constant current, "V" if we are in constant voltage
 
 ## Missing features
 

@@ -358,15 +358,6 @@ void read_state(void)
 
 		val |= valh << 8;
 
-		uart_write_str("CH ");
-		uart_write_ch('0' + ch);
-		uart_write_str(" VAL ");
-		uart_write_fixed_point(val);
-		uart_write_str("\r\n");
-		while (uart_write_len > 0)
-			uart_write_from_buf();
-		uart_flush_write();
-
 		switch (ch) {
 			case 2:
 				state_cout = val;

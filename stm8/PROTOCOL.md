@@ -133,13 +133,9 @@ Reports all state variables:
 
 * Output -- Output enabled "1" or disabled "0"
 * Vin -- Voltage Input to the unit
-* Voutmax -- Voltage output maximum
 * Vout -- Actual voltage output
-* Ioutmax -- Current output max as set
 * Iout -- Actual current output
 * CCCV -- "1" if we are in constant current, "0" if we are in constant voltage
-* Vshutdown -- Voltage set for shutdown, or "0" for feature disabled
-* Cshutdown -- Current shutdown enabled "1" or disabled "0"
 
 ## Missing features
 

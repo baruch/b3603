@@ -174,3 +174,43 @@
 #define TIM_SR1_CC2IF (1 << 2)
 #define TIM_SR1_CC1IF (1 << 1)
 #define TIM_SR1_UIF (1 << 0)
+
+
+/* ------------------- ADC1 ------------------- */
+#define ADC1_DB0H *(unsigned char*)0x53E0
+#define ADC1_DB0L *(unsigned char*)0x53E1
+#define ADC1_DB1H *(unsigned char*)0x53E2
+#define ADC1_DB1L *(unsigned char*)0x53E3
+#define ADC1_DB2H *(unsigned char*)0x53E4
+#define ADC1_DB2L *(unsigned char*)0x53E5
+#define ADC1_DB3H *(unsigned char*)0x53E6
+#define ADC1_DB3L *(unsigned char*)0x53E7
+#define ADC1_DB4H *(unsigned char*)0x53E8
+#define ADC1_DB4L *(unsigned char*)0x53E9
+#define ADC1_DB5H *(unsigned char*)0x53EA
+#define ADC1_DB5L *(unsigned char*)0x53EB
+#define ADC1_DB6H *(unsigned char*)0x53EC
+#define ADC1_DB6L *(unsigned char*)0x53ED
+#define ADC1_DB7H *(unsigned char*)0x53EE
+#define ADC1_DB7L *(unsigned char*)0x53EF
+#define ADC1_DB8H *(unsigned char*)0x53F0
+#define ADC1_DB8L *(unsigned char*)0x53F1
+#define ADC1_DB9H *(unsigned char*)0x53F2
+#define ADC1_DB9L *(unsigned char*)0x53F3
+
+#define ADC1_CSR *(unsigned char*)0x5400
+#define ADC1_CR1 *(unsigned char*)0x5401
+#define ADC1_CR2 *(unsigned char*)0x5402
+#define ADC1_CR3 *(unsigned char*)0x5403
+#define ADC1_DRH *(unsigned char*)0x5404
+#define ADC1_DRL *(unsigned char*)0x5405
+#define ADC1_TDRH *(unsigned char*)0x5406
+#define ADC1_TDRL *(unsigned char*)0x5407
+#define ADC1_HTRH *(unsigned char*)0x5408
+#define ADC1_HTRL *(unsigned char*)0x5409
+#define ADC1_LTRH *(unsigned char*)0x540A
+#define ADC1_LTRL *(unsigned char*)0x540B
+#define ADC1_AWSRH *(unsigned char*)0x540C
+#define ADC1_AWSRL *(unsigned char*)0x540D
+#define ADC1_AWCRH *(unsigned char*)0x540E
+#define ADC1_AWCRL *(unsigned char*)0x540F

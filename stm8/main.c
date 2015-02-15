@@ -281,19 +281,57 @@ void pinout_init()
 	// PA1 is 74HC595 SHCP, output
 	// PA2 is 74HC595 STCP, output
 	PA_DDR = (1<<1) | (1<<2);
+	PA_CR1 = 0;
+	PA_CR2 = 0;
 
 	// PB4 is Enable control, output
 	// PB5 is CV/CC sense, input
 	PB_DDR = (1<<4);
+	PB_CR1 = 0;
+	PB_CR2 = 0;
+	PB_ODR = (1<<4); // For safety we start with off-state
 
-	// PC4 is Iout sense, input
+	// PC4 is Iout sense, input adc, AIN2
 	// PC5 is Vout control, output
 	// PC6 is Iout control, output
-	PC_DDR = (5<<1) || (6<<1);
+	// PC7 is Button 1, input
+	PC_DDR = (1<<5) || (1<<6);
+	PC_CR1 = (1<<7); // For the button
+	PC_CR2 = 0;
 
-	// PD2 is Vout sense, input
-	// PD3 is Vin sense, input
+	// PD1 is Button 2, input
+	// PD2 is Vout sense, input adc, AIN3
+	// PD3 is Vin sense, input adc, AIN4
 	PD_DDR = 0;
+	PD_CR1 = (1<<1); // For the button
+	PD_CR2 = 0;
+}
+
+void adc_init(void)
+{
+	ADC1_CR1 = 0x70; // Power down, clock/18
+	ADC1_CR2 = 0x08; // Right alignment
+	ADC1_CR3 = 0x00;
+	ADC1_CSR = 0x00;
+
+	ADC1_TDRL = 0x0F;
+
+	ADC1_CR1 |= 0x01; // Turn on the ADC
+}
+
+void adc_start(uint8_t channel)
+{
+	uint8_t csr = ADC1_CSR;
+	csr &= 0x70; // Turn off EOC, Clear Channel
+	csr |= channel; // Select channel
+	ADC1_CSR = csr;
+
+	ADC1_CR1 |= 1; // Trigger conversion
+}
+
+uint8_t adc_ready()
+{
+	return ADC1_CSR & 0x80;
 }
 
 void config_load(void)
@@ -307,6 +345,59 @@ void config_load(void)
 	cfg_cshutdown = 0;
 }
 
+void read_state(void)
+{
+	state_constant_current = (PB_IDR & (1<<5)) ? 1 : 0;
+
+	if ((ADC1_CSR & 0x0F) == 0) {
+		adc_start(2);
+	} else if (adc_ready()) {
+		uint16_t val = ADC1_DRL;
+		uint16_t valh = ADC1_DRH;
+		uint8_t ch = ADC1_CSR & 0x0F;
+
+		val |= valh << 8;
+
+		uart_write_str("CH ");
+		uart_write_ch('0' + ch);
+		uart_write_str(" VAL ");
+		uart_write_fixed_point(val);
+		uart_write_str("\r\n");
+		while (uart_write_len > 0)
+			uart_write_from_buf();
+		uart_flush_write();
+
+		switch (ch) {
+			case 2:
+				state_cout = val;
+				ch = 3;
+				break;
+			case 3:
+				state_vout = val;
+				ch = 4;
+				break;
+			case 4:
+				state_vin = val;
+				ch = 2;
+				break;
+		}
+
+		adc_start(ch);
+	}
+}
+
+uint8_t output_state(void)
+{
+	return (PB_ODR & (1<<4)) ? 0 : 1;
+}
+
+void control_outputs(void)
+{
+	if (cfg_output != output_state()) {
+		PB_ODR ^= (1<<4);
+	}
+}
+
 int main()
 {
 	unsigned long i = 0;
@@ -314,15 +405,24 @@ int main()
 	clk_init();
 	uart_init();
 	pinout_init();
+	adc_init();
 
 	config_load();
+
+	if (cfg_default)
+		cfg_output = 1;
+
+	control_outputs();
 
 	uart_write_str("\r\nB3606 starting: Version " FW_VERSION "\r\n");
 
 	do {
 		uart_write_from_buf();
+
+		read_state();
+		control_outputs();
+
 		uart_read_to_buf();
-		
 		if (read_newline) {
 			process_input();
 		}

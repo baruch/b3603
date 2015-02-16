@@ -37,6 +37,8 @@ uint16_t state_vin;
 uint16_t state_vout;
 uint16_t state_cout;
 uint8_t state_constant_current; // If false, we are in constant voltage
+uint8_t state_power_good;
+uint8_t state_power_good_prev;
 
 uint8_t uart_write_ready(void)
 {
@@ -295,6 +297,7 @@ void pinout_init()
 	PB_CR2 = 0;
 	PB_ODR = (1<<4); // For safety we start with off-state
 
+	// PC3 is power good, input
 	// PC4 is Iout sense, input adc, AIN2
 	// PC5 is Vout control, output
 	// PC6 is Iout control, output
@@ -351,11 +354,19 @@ void config_load(void)
 	cal_vin = 54;
 	cal_vout = 54;
 	cal_cout = 2;
+
+	state_power_good = state_power_good_prev = 1;
 }
 
 void read_state(void)
 {
 	state_constant_current = (PB_IDR & (1<<5)) ? 1 : 0;
+	state_power_good = (PC_IDR & (1<<3)) ? 1 : 0;
+	if (state_power_good_prev != state_power_good) {
+		uart_write_str("POWER LOST\r\n");
+		state_power_good_prev = state_power_good;
+		cfg_output = 0;
+	}
 
 	if ((ADC1_CSR & 0x0F) == 0) {
 		adc_start(2);

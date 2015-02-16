@@ -439,9 +439,9 @@ int main()
 {
 	unsigned long i = 0;
 
+	pinout_init();
 	clk_init();
 	uart_init();
-	pinout_init();
 	adc_init();
 
 	config_load();

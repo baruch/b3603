@@ -11,6 +11,10 @@ replacing the original firmware with one of my own.
 
 ![Bottom Board Side 2](docs/BottomBoardSide2.jpg)
 
+Partial reverse engineering by [flex](http://www.eevblog.com/forum/reviews/b3603-dcdc-buck-converter-mini-review-and-how-the-set-key-could-be-fatal/msg611071/#msg611071):
+
+[!Bottom Board Partial Reverse Engineering](docs/BottomBoardPartialReverseEngineering.jpg)
+
 ## Control Board (top)
 
 ![Top Board Side 1](docs/TopBoardSide1.jpg)

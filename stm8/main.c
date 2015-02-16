@@ -5,13 +5,13 @@
 #include <stdint.h>
 #include <ctype.h>
 
-const uint16_t cap_vmin = 10; // 10 mV
-const uint16_t cap_vmax = 35000; // 35 V
-const uint16_t cap_vstep = 1; // 1mV
+const float cap_vmin = 0.010; // 10 mV
+const float cap_vmax = 35.0; // 35 V
+const float cap_vstep = 0.001; // 1mV
 
-const uint16_t cap_cmin = 10; // 10 mA
-const uint16_t cap_cmax = 3000; // 3 A
-const uint16_t cap_cstep = 10; // 10 mA
+const float cap_cmin = 0.010; // 10 mA
+const float cap_cmax = 3.0; // 3 A
+const float cap_cstep = 0.010; // 10 mA
 
 uint8_t uart_write_buf[64];
 uint8_t uart_write_start;
@@ -21,9 +21,10 @@ uint8_t uart_read_buf[64];
 uint8_t uart_read_len;
 uint8_t read_newline;
 
-uint16_t cal_vin;
-uint16_t cal_vout;
-uint16_t cal_cout;
+float cal_vin_a;
+float cal_vin_b;
+float cal_vout;
+float cal_cout;
 
 uint8_t cfg_name[17];
 uint8_t cfg_default;
@@ -33,9 +34,12 @@ uint16_t cfg_cset;
 uint16_t cfg_vshutdown;
 uint16_t cfg_cshutdown;
 
-uint16_t state_vin;
-uint16_t state_vout;
-uint16_t state_cout;
+uint16_t state_vin_raw;
+uint16_t state_vout_raw;
+uint16_t state_cout_raw;
+float state_vin;
+float state_vout;
+float state_cout;
 uint8_t state_constant_current; // If false, we are in constant voltage
 uint8_t state_power_good;
 uint8_t state_power_good_prev;
@@ -92,29 +96,32 @@ void uart_write_digit(uint16_t digit)
 		uart_write_ch('0' + digit);
 }
 
-void uart_write_fixed_point(uint16_t val)
+void uart_write_int(uint16_t val)
 {
-	uint16_t digit = val / 10000;
+	uint8_t ch[6];
+	uint8_t i;
+	uint8_t highest_nonzero = 0;
 
-	if (digit > 0)
-		uart_write_digit(digit);
+	ch[0] = '0';
 
-	digit = val / 1000;
-	digit = digit % 10;
-	uart_write_digit(digit);
+	for (i = 0; i < 6 && val != 0; i++) {
+		uint16_t digit = val % 10;
+		ch[i] = '0' + digit;
+		val /= 10;
+		if (digit)
+			highest_nonzero = i;
+	}
 
+	for (i = highest_nonzero+1; i > 0; i--) {
+		uart_write_ch(ch[i-1]);
+	}
+}
+
+void uart_write_fixed_point(float val)
+{
+	uart_write_int(val);
 	uart_write_ch('.');
-
-	digit = val / 100;
-	digit = digit % 10;
-	uart_write_digit(digit);
-
-	digit = val / 10;
-	digit = digit % 10;
-	uart_write_digit(digit);
-
-	digit = val % 10;
-	uart_write_digit(digit);
+	uart_write_int(val*1000.0);
 }
 
 void uart_write_from_buf(void)
@@ -226,9 +233,25 @@ void process_input()
 		uart_write_ch('/');
 		uart_write_fixed_point(state_vin);
 		uart_write_ch('/');
+		uart_write_fixed_point(cal_vin_a);
+		uart_write_ch('/');
+		uart_write_fixed_point(cal_vin_b);
+		uart_write_ch('/');
 		uart_write_fixed_point(state_vout);
 		uart_write_ch('/');
 		uart_write_fixed_point(state_cout);
+		uart_write_ch('/');
+		uart_write_ch(state_constant_current ? 'C' : 'V');
+		uart_write_str("\r\n");
+	} else if (strcmp(uart_read_buf, "RSTATUS") == 0) {
+		uart_write_str("RSTATUS: ");
+		uart_write_ch('0' + cfg_output);
+		uart_write_ch('/');
+		uart_write_int(state_vin_raw);
+		uart_write_ch('/');
+		uart_write_int(state_vout_raw);
+		uart_write_ch('/');
+		uart_write_int(state_cout_raw);
 		uart_write_ch('/');
 		uart_write_ch(state_constant_current ? 'C' : 'V');
 		uart_write_str("\r\n");
@@ -350,9 +373,11 @@ void config_load(void)
 	cfg_vshutdown = 0;
 	cfg_cshutdown = 0;
 
-	cal_vin = 54;
-	cal_vout = 54;
-	cal_cout = 2;
+	cal_vin_a = 53.67915;
+	cal_vin_b = 0.25368;
+
+	cal_vout = 54.0;
+	cal_cout = 2.0;
 
 	state_power_good = state_power_good_prev = 1;
 }
@@ -378,15 +403,18 @@ void read_state(void)
 
 		switch (ch) {
 			case 2:
-				state_cout = val * cal_cout;
+				state_cout_raw = val;
+				state_cout = (val * cal_cout) / 1024.0;
 				ch = 3;
 				break;
 			case 3:
-				state_vout = val * cal_vout;
+				state_vout_raw = val;
+				state_vout = (val * cal_vout) / 1024.0;
 				ch = 4;
 				break;
 			case 4:
-				state_vin = val * cal_vin;
+				state_vin_raw = val;
+				state_vin = ( val * cal_vin_a ) / 1024.0 + cal_vin_b;
 				ch = 2;
 				break;
 		}

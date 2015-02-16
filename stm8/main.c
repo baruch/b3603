@@ -263,7 +263,6 @@ void process_input()
 void clk_init()
 {
 	CLK_DIVR = 0x00; // Set the frequency to 16 MHz
-	CLK_PCKENR1 = 0xFF; // Enable peripherals
 }
 
 void uart_init()

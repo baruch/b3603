@@ -15,6 +15,8 @@ Partial reverse engineering by [flex](http://www.eevblog.com/forum/reviews/b3603
 
 ![Bottom Board Partial Reverse Engineering](docs/BottomBoardPartialReverseEngineering.jpg)
 
+[Schematics of the bottom board done by flex](docs/B3603_BottomBoardSchematics.png) [PDF version](docs/B3603_BottomBoardSchematics.pdf)
+
 ## Control Board (top)
 
 ![Top Board Side 1](docs/TopBoardSide1.jpg)

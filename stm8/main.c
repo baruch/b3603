@@ -336,6 +336,39 @@ void pinout_init()
 	PD_CR2 = 0;
 }
 
+void pwm_init(void)
+{
+	/* Timer 1 Channel 1 for Iout control */
+	TIM1_CR1 = 0x10; // Down direction
+	TIM1_ARRH = 0x03; // Reload counter = 64535
+	TIM1_ARRL = 0xFF;
+	TIM1_PSCRH = 0; // Prescaler 0 means division by 1
+	TIM1_PSCRL = 0;
+	TIM1_RCR = 0; // Continuous
+
+	TIM1_CCMR1 = 0x70;    //  Set up to use PWM mode 2.
+	TIM1_CCER1 = 0x01;    //  Output is enabled for channel 1
+	TIM1_CCR1H = 0x00;      //  Start with the PWM signal set
+	TIM1_CCR1L = 0x20;
+
+	TIM1_BKR = 0x80;       //  Enable the main output.
+
+	/* Timer 2 Channel 1 for Vout control */
+	TIM2_ARRH = 0x03; // Reload counter = 64535
+	TIM2_ARRL = 0xFF;
+	TIM2_PSCR = 0; // Prescaler 0 means division by 1
+	TIM2_CR1 = 0x10; // Down direction
+
+	TIM2_CCMR1 = 0x70;    //  Set up to use PWM mode 2.
+	TIM2_CCER1 = 0x01;    //  Output is enabled for channel 1
+	TIM2_CCR1H = 0x00;      //  Start with the PWM signal set
+	TIM2_CCR1L = 0x20;
+
+	// Enable the timers
+	TIM1_CR1 |= 0x01; // Enable the counter
+	TIM2_CR1 |= 0x01; // Enable the counter
+}
+
 void adc_init(void)
 {
 	ADC1_CR1 = 0x70; // Power down, clock/18
@@ -442,6 +475,7 @@ int main()
 	pinout_init();
 	clk_init();
 	uart_init();
+	pwm_init();
 	adc_init();
 
 	config_load();

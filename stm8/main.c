@@ -243,9 +243,9 @@ void process_input()
 		uart_write_str("\r\nVOLTAGE IN: ");
 		uart_write_fixed_point(state_vin);
 		uart_write_str("\r\nVOLTAGE OUT: ");
-		uart_write_fixed_point(state_vout);
+		uart_write_fixed_point(cfg_output ? state_vout : 0);
 		uart_write_str("\r\nCURRENT OUT: ");
-		uart_write_fixed_point(state_cout);
+		uart_write_fixed_point(cfg_output ? state_cout : 0);
 		uart_write_str("\r\nCONSTANT: ");
 		uart_write_str(state_constant_current ? "CURRENT" : "VOLTAGE");
 		uart_write_str("\r\n");

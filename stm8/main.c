@@ -190,6 +190,110 @@ void set_name(uint8_t *name)
 	uart_write_str("\r\n");
 }
 
+void set_output(uint8_t *s)
+{
+	if (s[1] != 0) {
+		uart_write_str("OUTPUT takes either 0 for OFF or 1 for ON, received: \"");
+		uart_write_str(s);
+		uart_write_str("\"\r\n");
+		return;
+	}
+
+	if (s[0] == '0') {
+		cfg_output = 0;
+		uart_write_str("OUTPUT: OFF\r\n");
+	} else if (s[0] == '1') {
+		cfg_output = 1;
+		uart_write_str("OUTPUT: ON\r\n");
+	} else {
+		uart_write_str("OUTPUT takes either 0 for OFF or 1 for ON, received: \"");
+		uart_write_str(s);
+		uart_write_str("\"\r\n");
+	}
+}
+
+uint16_t parse_fixed_point(uint8_t *s)
+{
+	uint16_t val = 0;
+	uint16_t fraction_digits = 0;
+	uint16_t whole_digits = 0;
+	uint8_t fraction = 0;
+
+	for (; *s != 0; s++) {
+		if (*s == '.') {
+			fraction = 1;
+		} else if (*s >= '0' && *s <= '9') {
+			val = *s - '0';
+			if (fraction) {
+				fraction_digits *= 10;
+				fraction_digits += val;
+				if (fraction_digits > 1000) {
+					uart_write_str("TOO MANY DIGITS IN THE FRACTION\r\n");
+					return 0xFFFF;
+				}
+			} else {
+				whole_digits *= 10;
+				whole_digits += val;
+				if (whole_digits > 100) {
+					uart_write_str("TOO MANY DIGITS IN THE WHOLE PART\r\n");
+					return 0xFFFF;
+				}
+			}
+		} else {
+			uart_write_str("INVALID CHARACTER IN A NUMBER\r\n");
+			return 0xFFFF;
+		}
+	}
+
+	return whole_digits * 1000 + fraction_digits;
+}
+
+void set_voltage(uint8_t *s)
+{
+	uint16_t val;
+
+	val = parse_fixed_point(s);
+	if (val == 0xFFFF)
+		return;
+
+	if (val > cap_vmax) {
+		uart_write_str("VOLTAGE VALUE TOO HIGH\r\n");
+		return;
+	}
+	if (val < cap_vmin) {
+		uart_write_str("VOLTAGE VALUE TOO LOW\r\n");
+		return;
+	}
+
+	uart_write_str("VOLTAGE: SET ");
+	uart_write_fixed_point(val);
+	uart_write_str("\r\n");
+	cfg_vset = val;
+}
+
+void set_current(uint8_t *s)
+{
+	uint16_t val;
+
+	val = parse_fixed_point(s);
+	if (val == 0xFFFF)
+		return;
+
+	if (val > cap_cmax) {
+		uart_write_str("CURRENT VALUE TOO HIGH\r\n");
+		return;
+	}
+	if (val < cap_cmin) {
+		uart_write_str("CURRENT VALUE TOO LOW\r\n");
+		return;
+	}
+
+	uart_write_str("CURRENT: SET ");
+	uart_write_fixed_point(val);
+	uart_write_str("\r\n");
+	cfg_cset = val;
+}
+
 void process_input()
 {
 	// Eliminate the CR/LF character
@@ -277,6 +381,12 @@ void process_input()
 		if (space_found) {
 			if (strcmp(uart_read_buf, "SNAME") == 0) {
 				set_name(uart_read_buf + idx + 1);
+			} else if (strcmp(uart_read_buf, "OUTPUT") == 0) {
+				set_output(uart_read_buf + idx + 1);
+			} else if (strcmp(uart_read_buf, "VOLTAGE") == 0) {
+				set_voltage(uart_read_buf + idx + 1);
+			} else if (strcmp(uart_read_buf, "CURRENT") == 0) {
+				set_current(uart_read_buf + idx + 1);
 			} else {
 				uart_write_str("UNKNOWN COMMAND!\r\n");
 			}

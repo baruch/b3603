@@ -70,14 +70,14 @@ OUTPUT0 disables the output and OUTPUT1 enables the output.
 
 ### Voltage Set
 
-* Send: "VSET X.XXXX"
+* Send: "VOLTAGE X.XXXX"
 * Receive: "VOLTAGE: SET X.XXXX"
 
 Set the maximum voltage level.
 
 ### Current Set
 
-* Send: "CSET X.XXXX"
+* Send: "CURRENT X.XXXX"
 * Receive: "CURRENT: SET X.XXXX"
 
 Set the maximum current level.

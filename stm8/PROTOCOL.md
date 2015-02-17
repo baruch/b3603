@@ -114,28 +114,28 @@ in short and the output is shutdown.
 ### Query configuration
 
 * Send: "CONFIG"
-* Receive: "CONFIG: Output/Voutmax/Ioutmax/Vshutdown/Cshutdown"
+* Receive: "CONFIG:\r\nOUTPUT: <Output>\r\nVOLTAGE SET: <Voutmax>\r\nCURRENT SET: <Ioutmax>\r\nVOLTAGE SHUTDOWN: <Vshutdown>\r\nCURRENT SHUTDOWN: <Cshutdown>\r\n"
 
 Report all the config variables:
 
-* Output -- Output enabled "1" or disabled "0"
+* Output -- Output enabled "ON" or disabled "OFF"
 * Voutmax -- Voltage output maximum
 * Ioutmax -- Current output max as set
-* Vshutdown -- Voltage set for shutdown, or "0" for feature disabled
-* Cshutdown -- Current shutdown enabled "1" or disabled "0"
+* Vshutdown -- Voltage set for shutdown, or "DISABLED" for feature disabled
+* Cshutdown -- Current shutdown enabled "ON" or disabled "OFF"
 
 ### Status Report
 
 * Send: "STATUS"
-* Receive: "STATUS: Output/Vin/Vout/Iout/CCCV"
+* Receive: "STATUS:\r\nOUTPUT: <Output>\r\nVOLTAGE IN: <Vin>\r\nVOLTAGE OUT: <Vout>\r\nVOLTAGE OUT: <Iout>\r\nCONSTANT: <CCCV>\r\n"
 
 Reports all state variables:
 
-* Output -- Output enabled "1" or disabled "0"
+* Output -- Output enabled "ON" or disabled "OFF"
 * Vin -- Voltage Input to the unit
 * Vout -- Actual voltage output
 * Iout -- Actual current output
-* CCCV -- "C" if we are in constant current, "V" if we are in constant voltage
+* CCCV -- "CURRENT" if we are in constant current, "VOLTAGE" if we are in constant voltage
 
 ## Missing features
 

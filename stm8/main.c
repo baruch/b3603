@@ -204,62 +204,62 @@ void process_input()
 		uart_write_str(cfg_name);
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "VLIST") == 0) {
-		uart_write_str("VLIST: ");
+		uart_write_str("VLIST:\r\nVOLTAGE MIN: ");
 		uart_write_fixed_point(cap_vmin);
-		uart_write_ch('/');
+		uart_write_str("\r\nVOLTAGE MAX: ");
 		uart_write_fixed_point(cap_vmax);
-		uart_write_ch('/');
+		uart_write_str("\r\nVOLTAGE STEP: ");
 		uart_write_fixed_point(cap_vstep);
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "CLIST") == 0) {
-		uart_write_str("CLIST: ");
+		uart_write_str("CLIST:\r\nCURRENT MIN: ");
 		uart_write_fixed_point(cap_cmin);
-		uart_write_ch('/');
+		uart_write_str("\r\nCURRENT MAX: ");
 		uart_write_fixed_point(cap_cmax);
-		uart_write_ch('/');
+		uart_write_str("\r\nCURRENT STEP: ");
 		uart_write_fixed_point(cap_cstep);
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "CONFIG") == 0) {
-		uart_write_str("CONFIG: ");
-		uart_write_ch('0' + cfg_output);
-		uart_write_ch('/');
+		uart_write_str("CONFIG:\r\nOUTPUT: ");
+		uart_write_str(cfg_output ? "ON" : "OFF");
+		uart_write_str("\r\nVOLTAGE SET: ");
 		uart_write_fixed_point(cfg_vset);
-		uart_write_ch('/');
+		uart_write_str("\r\nCURRENT SET: ");
 		uart_write_fixed_point(cfg_cset);
-		uart_write_ch('/');
+		uart_write_str("\r\nVOLTAGE SHUTDOWN: ");
 		if (cfg_vshutdown == 0)
 			uart_write_str("DISABLED");
 		else
 			uart_write_fixed_point(cfg_vshutdown);
-		uart_write_ch('/');
+		uart_write_str("\r\nCURRENT SHUTDOWN: ");
 		if (cfg_cshutdown == 0)
 			uart_write_str("DISABLED");
 		else
 			uart_write_fixed_point(cfg_cshutdown);
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "STATUS") == 0) {
-		uart_write_str("STATUS: ");
-		uart_write_ch('0' + cfg_output);
-		uart_write_ch('/');
+		uart_write_str("STATUS:\r\nOUTPUT: ");
+		uart_write_str(cfg_output ? "ON" : "OFF");
+		uart_write_str("\r\nVOLTAGE IN: ");
 		uart_write_fixed_point(state_vin);
-		uart_write_ch('/');
+		uart_write_str("\r\nVOLTAGE OUT: ");
 		uart_write_fixed_point(state_vout);
-		uart_write_ch('/');
+		uart_write_str("\r\nCURRENT OUT: ");
 		uart_write_fixed_point(state_cout);
-		uart_write_ch('/');
-		uart_write_ch(state_constant_current ? 'C' : 'V');
+		uart_write_str("\r\nCONSTANT: ");
+		uart_write_str(state_constant_current ? "CURRENT" : "VOLTAGE");
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "RSTATUS") == 0) {
-		uart_write_str("RSTATUS: ");
-		uart_write_ch('0' + cfg_output);
-		uart_write_ch('/');
+		uart_write_str("RSTATUS:\r\nOUTPUT: ");
+		uart_write_str(cfg_output ? "ON" : "OFF");
+		uart_write_str("\r\nVOLTAGE IN ADC: ");
 		uart_write_int(state_vin_raw);
-		uart_write_ch('/');
+		uart_write_str("\r\nVOLTAGE OUT ADC: ");
 		uart_write_int(state_vout_raw);
-		uart_write_ch('/');
+		uart_write_str("\r\nCURRENT OUT ADC: ");
 		uart_write_int(state_cout_raw);
-		uart_write_ch('/');
-		uart_write_ch(state_constant_current ? 'C' : 'V');
+		uart_write_str("\r\nCONSTANT: ");
+		uart_write_str(state_constant_current ? "CURRENT" : "VOLTAGE");
 		uart_write_str("\r\n");
 	} else {
 		// Process commands with arguments

@@ -13,7 +13,7 @@ const uint16_t cap_cmin = 10; // 10 mA
 const uint16_t cap_cmax = 3000; // 3 A
 const uint16_t cap_cstep = 10; // 10 mA
 
-uint8_t uart_write_buf[64];
+uint8_t uart_write_buf[255];
 uint8_t uart_write_start;
 uint8_t uart_write_len;
 

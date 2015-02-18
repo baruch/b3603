@@ -5,13 +5,19 @@
 #include <stdint.h>
 #include <ctype.h>
 
+#define PWM_HIGH 0x3F
+#define PWM_LOW 0xFF
+#define PWM_VAL ((PWM_HIGH<<8) | PWM_LOW)
+
 const uint16_t cap_vmin = 10; // 10 mV
 const uint16_t cap_vmax = 35000; // 35 V
 const uint16_t cap_vstep = 10; // 10mV
+const uint16_t cap_vmaxpwm = 36000;
 
 const uint16_t cap_cmin = 10; // 10 mA
 const uint16_t cap_cmax = 3000; // 3 A
 const uint16_t cap_cstep = 10; // 10 mA
+const uint16_t cap_cmaxpwm = 5000;
 
 uint8_t uart_write_buf[255];
 uint8_t uart_write_start;
@@ -43,6 +49,9 @@ uint16_t state_cout;
 uint8_t state_constant_current; // If false, we are in constant voltage
 uint8_t state_power_good;
 uint8_t state_power_good_prev;
+
+uint16_t out_voltage;
+uint16_t out_current;
 
 uint8_t uart_write_ready(void)
 {
@@ -193,7 +202,7 @@ void set_name(uint8_t *name)
 void set_output(uint8_t *s)
 {
 	if (s[1] != 0) {
-		uart_write_str("OUTPUT takes either 0 for OFF or 1 for ON, received: \"");
+//		uart_write_str("OUTPUT takes either 0 for OFF or 1 for ON, received: \"");
 		uart_write_str(s);
 		uart_write_str("\"\r\n");
 		return;
@@ -206,7 +215,7 @@ void set_output(uint8_t *s)
 		cfg_output = 1;
 		uart_write_str("OUTPUT: ON\r\n");
 	} else {
-		uart_write_str("OUTPUT takes either 0 for OFF or 1 for ON, received: \"");
+//		uart_write_str("OUTPUT takes either 0 for OFF or 1 for ON, received: \"");
 		uart_write_str(s);
 		uart_write_str("\"\r\n");
 	}
@@ -388,10 +397,10 @@ void process_input()
 			} else if (strcmp(uart_read_buf, "CURRENT") == 0) {
 				set_current(uart_read_buf + idx + 1);
 			} else {
-				uart_write_str("UNKNOWN COMMAND!\r\n");
+	//			uart_write_str("UNKNOWN COMMAND!\r\n");
 			}
 		} else {
-			uart_write_str("UNKNOWN COMMAND\r\n");
+	//		uart_write_str("UNKNOWN COMMAND\r\n");
 		}
 	}
 
@@ -426,22 +435,24 @@ void pinout_init()
 {
 	// PA1 is 74HC595 SHCP, output
 	// PA2 is 74HC595 STCP, output
+	PA_DDR = 0;
 	PA_DDR = (1<<1) | (1<<2);
 	PA_CR1 = 0;
 	PA_CR2 = 0;
 
 	// PB4 is Enable control, output
 	// PB5 is CV/CC sense, input
+	PB_ODR = (1<<4); // For safety we start with off-state
 	PB_DDR = (1<<4);
 	PB_CR1 = 0;
 	PB_CR2 = 0;
-	PB_ODR = (1<<4); // For safety we start with off-state
 
 	// PC3 is power good, input
 	// PC4 is Iout sense, input adc, AIN2
 	// PC5 is Vout control, output
 	// PC6 is Iout control, output
 	// PC7 is Button 1, input
+	PC_ODR = 0;
 	PC_DDR = (1<<5) || (1<<6);
 	PC_CR1 = (1<<7); // For the button
 	PC_CR2 = 0;
@@ -458,33 +469,31 @@ void pwm_init(void)
 {
 	/* Timer 1 Channel 1 for Iout control */
 	TIM1_CR1 = 0x10; // Down direction
-	TIM1_ARRH = 0x03; // Reload counter = 64535
-	TIM1_ARRL = 0xFF;
+	TIM1_ARRH = PWM_HIGH; // Reload counter = 16384
+	TIM1_ARRL = PWM_LOW;
 	TIM1_PSCRH = 0; // Prescaler 0 means division by 1
 	TIM1_PSCRL = 0;
 	TIM1_RCR = 0; // Continuous
 
 	TIM1_CCMR1 = 0x70;    //  Set up to use PWM mode 2.
-	TIM1_CCER1 = 0x01;    //  Output is enabled for channel 1
-	TIM1_CCR1H = 0x00;      //  Start with the PWM signal set
-	TIM1_CCR1L = 0x20;
+	TIM1_CCER1 = 0x03;    //  Output is enabled for channel 1, active low
+	TIM1_CCR1H = 0x00;      //  Start with the PWM signal off
+	TIM1_CCR1L = 0x00;
 
 	TIM1_BKR = 0x80;       //  Enable the main output.
 
 	/* Timer 2 Channel 1 for Vout control */
-	TIM2_ARRH = 0x03; // Reload counter = 64535
-	TIM2_ARRL = 0xFF;
+	TIM2_ARRH = PWM_HIGH; // Reload counter = 16384
+	TIM2_ARRL = PWM_LOW;
 	TIM2_PSCR = 0; // Prescaler 0 means division by 1
 	TIM2_CR1 = 0x10; // Down direction
 
 	TIM2_CCMR1 = 0x70;    //  Set up to use PWM mode 2.
-	TIM2_CCER1 = 0x01;    //  Output is enabled for channel 1
-	TIM2_CCR1H = 0x00;      //  Start with the PWM signal set
-	TIM2_CCR1L = 0x20;
+	TIM2_CCER1 = 0x03;    //  Output is enabled for channel 1, active low
+	TIM2_CCR1H = 0x00;      //  Start with the PWM signal off
+	TIM2_CCR1L = 0x00;
 
-	// Enable the timers
-	TIM1_CR1 |= 0x01; // Enable the counter
-	TIM2_CR1 |= 0x01; // Enable the counter
+	// Timers are still off, will be turned on when output is turned on
 }
 
 void adc_init(void)
@@ -579,10 +588,90 @@ uint8_t output_state(void)
 	return (PB_ODR & (1<<4)) ? 0 : 1;
 }
 
+void control_voltage(void)
+{
+	float pwm_val = PWM_VAL;
+	float maxpwm = cap_vmaxpwm;
+	float vset = cfg_vset;
+	float val = vset * pwm_val;
+	uint16_t ctr;
+	val /= cap_vmaxpwm;
+	ctr = val;
+
+	uart_write_str("VPWM ");
+	uart_write_int(ctr);
+	uart_write_ch(' ');
+
+	TIM1_CCR1H = ctr >> 8;
+	TIM1_CCR1L = ctr & 0xFF;
+	TIM1_CR1 |= 0x01; // Enable timer
+
+	uart_write_int(TIM1_CCR1H);
+	uart_write_ch(' ');
+	uart_write_int(TIM1_CCR1L);
+	uart_write_str("\r\n");
+
+	out_voltage = cfg_vset;
+}
+
+void control_current(void)
+{
+	float pwm_val = PWM_VAL;
+	float maxpwm = cap_cmaxpwm;
+	float cset = cfg_cset;
+	float val = cset * pwm_val;
+	uint16_t ctr;
+	val /= cap_cmaxpwm;
+	ctr = val;
+
+	uart_write_str("CPWM ");
+	uart_write_int(ctr);
+	uart_write_ch(' ');
+
+	TIM2_CCR1H = ctr >> 8;
+	TIM2_CCR1L = ctr & 0xFF;
+	TIM2_CR1 |= 0x01; // Enable timer
+
+	uart_write_int(TIM2_CCR1H);
+	uart_write_ch(' ');
+	uart_write_int(TIM2_CCR1L);
+	uart_write_str("\r\n");
+
+	out_current = cfg_cset;
+}
+
 void control_outputs(void)
 {
+	if (cfg_output) {
+		// Only tune the PWMs if we are outputing anything
+		if (out_voltage != cfg_vset) {
+			control_voltage();
+		}
+
+		if (out_current != cfg_cset) {
+			control_current();
+		}
+	}
+
 	if (cfg_output != output_state()) {
-		PB_ODR ^= (1<<4);
+		// Startup and shutdown orders need to be in reverse order
+		if (cfg_output) {
+			// We turned on the PWMs above already
+			PB_ODR &= ~(1<<4);
+		} else {
+			PB_ODR |= (1<<4);
+
+			TIM1_CCR1H = 0;
+			TIM1_CCR1L = 0;
+			TIM1_CR1 &= 0xFE; // Disable timer
+
+			TIM2_CCR1H = 0;
+			TIM2_CCR1L = 0;
+			TIM2_CR1 &= 0xFE; // Disable timer
+
+			out_voltage = 0;
+			out_current = 0;
+		}
 	}
 }
 

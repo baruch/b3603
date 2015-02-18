@@ -1,6 +1,6 @@
 SRC=main.c
 OBJ=$(SRC:.c=.rel)
-SDCC=sdcc -lstm8 -mstm8
+SDCC=sdcc -lstm8 -mstm8 --opt-code-size
 
 all: b3603.ihx
 

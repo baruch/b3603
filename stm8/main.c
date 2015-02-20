@@ -409,8 +409,7 @@ void process_input()
 
 void clk_init()
 {
-	CLK_DIVR = 0x00; // Set the frequency to 16 MHz
-	while ((CLK_DIVR & 0x02) == 0);
+	CLK_CKDIVR = 0x00; // Set the frequency to 16 MHz
 }
 
 void uart_init()
@@ -419,8 +418,8 @@ void uart_init()
 	USART1_CR2 = 0;
 	USART1_CR3 = 0;
 
-	USART1_BRR2 = 0x04;
-	USART1_BRR1 = 0x03; // 38400 baud, order important between BRRs, BRR1 must be last
+	USART1_BRR2 = 0x1;
+	USART1_BRR1 = 0x1A; // 38400 baud, order important between BRRs, BRR1 must be last
 
 	USART1_CR2 = USART_CR2_TEN | USART_CR2_REN; // Allow TX & RX
 

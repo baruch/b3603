@@ -36,23 +36,18 @@
 #define PF_CR2 *(unsigned char*)0x501D
 
 /* CLOCK */
-#define CLK_DIVR	*(unsigned char*)0x50C0
-#define CLK_CRTCR	*(unsigned char*)0x50C1
-#define CLK_ICKR	*(unsigned char*)0x50C2
-#define CLK_PCKENR1	*(unsigned char*)0x50C3
-#define CLK_PCKENR2	*(unsigned char*)0x50C4
-#define CLK_CCOR	*(unsigned char*)0x50C5
-#define CLK_ECKR	*(unsigned char*)0x50C6
-#define CLK_SCSR	*(unsigned char*)0x50C7
-#define CLK_SWR 	*(unsigned char*)0x50C8
-#define CLK_SWCR	*(unsigned char*)0x50C9
-#define CLK_CSSR	*(unsigned char*)0x50CA
-#define CLK_CBEEPR	*(unsigned char*)0x50CB
-#define CLK_HSICALR	*(unsigned char*)0x50CC
-#define CLK_HSITRIMR	*(unsigned char*)0x50CD
-#define CLK_HSIUNLCKR	*(unsigned char*)0x50CE
-#define CLK_REGCSR	*(unsigned char*)0x50CF
-
+#define CLK_ICKR    *(unsigned char*)0x50C0
+#define CLK_ECKR    *(unsigned char*)0x50C1
+#define CLK_CMSR    *(unsigned char*)0x50C3
+#define CLK_SWR     *(unsigned char*)0x50C4
+#define CLK_SWCR    *(unsigned char*)0x50C5
+#define CLK_CKDIVR  *(unsigned char*)0x50C6
+#define CLK_PCKENR1 *(unsigned char*)0x50C7
+#define CLK_CSSR    *(unsigned char*)0x50C8
+#define CLK_CCOR    *(unsigned char*)0x50C9
+#define CLK_PCKENR2 *(unsigned char*)0x50CA
+#define CLK_HSITRIMR *(unsigned char*)0x50CC
+#define CLK_SWIMCCR *(unsigned char*)0x50CD
 
 /* ------------------- USART ------------------- */
 #define USART1_SR *(unsigned char*)0x5230
@@ -232,3 +227,7 @@
 #define ADC1_AWSRL *(unsigned char*)0x540D
 #define ADC1_AWCRH *(unsigned char*)0x540E
 #define ADC1_AWCRL *(unsigned char*)0x540F
+
+/* ---------------- CPU/SWIM registers ----------------*/
+#define CFG_GCR *(unsigned char*)0x7F60
+#define SWIM_CSR *(unsigned char*)0x7F80

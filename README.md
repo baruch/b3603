@@ -5,17 +5,25 @@ out how it works, then it should be possible to create an alternative firmware.
 Either by driving it with another board on the same control points or by
 replacing the original firmware with one of my own.
 
+## Schematics
+
+These were done by flex, the discussion can be seen in the EEVBlog forum (link at the bottom).
+
+[B3603 Board Schematics in PDF (top and bottom)](docs/B3603_BoardSchematics.pdf)
+
+Bottom board schematics:
+
+![B3603 Bottom Board Schematics](docs/B3603_BottomBoardSchematics.png)
+
+Top board schematics:
+
+![B3603 Top Board Schematics](docs/B3603_TopBoardSchematics.png)
+
 ## Regulator Board (bottom)
 
 ![Bottom Board Side 1](docs/BottomBoardSide1.jpg)
 
 ![Bottom Board Side 2](docs/BottomBoardSide2.jpg)
-
-Partial reverse engineering by [flex](http://www.eevblog.com/forum/reviews/b3603-dcdc-buck-converter-mini-review-and-how-the-set-key-could-be-fatal/msg611071/#msg611071):
-
-![Bottom Board Partial Reverse Engineering](docs/BottomBoardPartialReverseEngineering.jpg)
-
-[Schematics of the bottom board done by flex](docs/B3603_BottomBoardSchematics.png) [PDF version](docs/B3603_BottomBoardSchematics.pdf)
 
 ## Control Board (top)
 

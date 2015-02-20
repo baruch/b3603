@@ -54,7 +54,7 @@ Lets name the different pinout components, left and right are as seen looking at
 
 | MCU pin | MCU Function | Board Connector | Board Connector Pin | Board Connector Name
 | ------- | -------------|-----------------|---------------------|-----
-| Pin 1 | UART1\_CK/TIM2\_CH1/BEEP/(HS) PD4 | ? | ? | ?
+| Pin 1 | UART1\_CK/TIM2\_CH1/BEEP/(HS) PD4 | 74HC595 | Pin 3 | DS
 | Pin 2 | UART1\_TX | Serial connector | Pin 2 | TX
 | Pin 3 | UART1\_RX | Serial connector | Pin 4 | RX
 | Pin 4 | NRST | SWIM | Pin 1 | SWIM NRST
@@ -63,21 +63,22 @@ Lets name the different pinout components, left and right are as seen looking at
 | Pin 7 | Vss (GND) | | |
 | Pin 8 | Vcap | | |
 | Pin 9 | Vdd | | |
-| Pin 10 | SPI\_NSS / TIM2\_CH3 / PA3 (HS) | ? | ? | ?
+| Pin 10 | SPI\_NSS / TIM2\_CH3 / PA3 (HS) | CV/CC leds |  | CV/CC leds
 | Pin 11 | PB5 (T) / I2C\_SDA / TIM1\_BKIN | Left connector | Pin 7 | CV/CC status
-| Pin 12 | PB4 (T) / I2C\_SCL / ADC\_ETR | Left connector | Pin 6 | Enable Output
-| Pin 13 | PC3 (HS) / TIM1\_CH3 [TLI] [TIM1_CH1N]| Left Connector | Pin 8 | Power good?
-| Pin 14 | PC4 (HS) / TIM1\_CH4 / CLK\_CCO / AIN2 / TIM1\_CH2N | Left connector | Pin 1 | Iout sense
+| Pin 12 | PB4 (T) / I2C\_SCL / ADC\_ETR | Left connector | Pin 6 | Enable Output + Red (ON) led
+| Pin 13 | PC3 (HS) / TIM1\_CH3 [TLI] [TIM1_CH1N]| Left Connector | Pin 8 | Not connected
+| Pin 14 | PC4 (HS) / TIM1\_CH4 / CLK\_CCO / AIN2 / TIM1\_CH2N | Left connector | Pin 1 | Iout sense 16\*(0.01V + Iout\*0.05)
 | Pin 15 | PC5 (HS) / SPI\_SCK / TIM2\_CH1 | Left connector | Pin 5 | Vout set
 | Pin 16 | PC6 (HS) / SPI\_MOSI / TIM1\_CH1 | Left connector | Pin 4 | Iout set
-| Pin 17 | PC7 (HS) / SPI\_MISO / TIM1\_CH2 | Button |  | Button 1
-| Pin 18 | PD1 (HS) / SWIM | SWIM | Pin 3 | SWIM & Button 2
+| Pin 17 | PC7 (HS) / SPI\_MISO / TIM1\_CH2 | Button |  | Buttons
+| Pin 18 | PD1 (HS) / SWIM | SWIM | Pin 3 | SWIM & Buttons
 | Pin 19 | PD2 (HS) / AIN3 / TIM2\_CH3 | Left connector | Pin 2 | Vout sense
-| Pin 20 | PD3 (HS) / AIN4 / TIM2\_CH2 / ADC\_ETR | Left connector | Pin 3 | Vin sense
+| Pin 20 | PD3 (HS) / AIN4 / TIM2\_CH2 / ADC\_ETR | Left connector | Pin 3 | Vin sense (Vin/16)
 
-I suspect that the two right buttons (3 & 4) are connected to the same pins as
-the UART TX & RX, which will make them useless since serial communication is
-more important to me than buttons.
+
+The buttons are connected in a strange setup where all four are on two pins.
+
+The CV/CC leds are in serial with a lead between them throuh a 10K resistor to pin PA3, by changing the pin between Output HIGH, Output LOW and Input it is possible to make one of them on or both off.
 
 #### Bottom Board Interface
 

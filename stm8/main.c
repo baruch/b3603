@@ -1,6 +1,6 @@
 #define FW_VERSION "0.0.1"
 
-#include "stm8l.h"
+#include "stm8s.h"
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>

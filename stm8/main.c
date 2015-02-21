@@ -9,15 +9,17 @@
 #define PWM_LOW 0xFF
 #define PWM_VAL ((PWM_HIGH<<8) | PWM_LOW)
 
-const uint16_t cap_vmin = 10; // 10 mV
-const uint16_t cap_vmax = 35000; // 35 V
-const uint16_t cap_vstep = 10; // 10mV
-const uint16_t cap_vmaxpwm = 36000;
+const uint16_t cap_vmin = (1<<10) / 100; // 10 mV
+const uint16_t cap_vmax = 35<<10; // 35 V
+const uint16_t cap_vstep = (1<<10) / 100; // 10mV
+const uint16_t cap_vmaxpwm = 35;
 
-const uint16_t cap_cmin = 10; // 10 mA
-const uint16_t cap_cmax = 3000; // 3 A
-const uint16_t cap_cstep = 10; // 10 mA
-const uint16_t cap_cmaxpwm = 5000;
+const uint16_t cap_cmin = (1<<10) / 1000; // 1 mA
+const uint16_t cap_cmax = 3<<10; // 3 A
+const uint16_t cap_cstep = (1<<10) / 1000; // 1 mA
+const uint16_t cap_cmaxpwm = 5;
+
+const uint16_t ref_volt_10 = (33<<10) / 10; // 3.3V
 
 uint8_t uart_write_buf[255];
 uint8_t uart_write_start;
@@ -27,10 +29,11 @@ uint8_t uart_read_buf[64];
 uint8_t uart_read_len;
 uint8_t read_newline;
 
-float cal_vin_a;
-float cal_vin_b;
-float cal_vout;
-float cal_cout;
+uint16_t cal_vin;
+uint16_t cal_vout_a;
+uint16_t cal_vout_b;
+uint16_t cal_cout_a;
+uint16_t cal_cout_b;
 
 uint8_t cfg_name[17];
 uint8_t cfg_default;
@@ -96,15 +99,7 @@ void uart_write_str(const char *str)
 	}
 }
 
-void uart_write_digit(uint16_t digit)
-{
-	if (digit > 9)
-		uart_write_ch('X');
-	else
-		uart_write_ch('0' + digit);
-}
-
-void uart_write_int_dot(uint16_t val, int dot_pos)
+void uart_write_int(uint16_t val)
 {
 	uint8_t ch[6];
 	uint8_t i;
@@ -120,27 +115,39 @@ void uart_write_int_dot(uint16_t val, int dot_pos)
 			highest_nonzero = i;
 	}
 
-	// Print value before dot
-	for (i = highest_nonzero+1; i > dot_pos; i--) {
-		uart_write_ch(ch[i-1]);
-	}
-	if (highest_nonzero+1 <= dot_pos)
-		uart_write_ch('0'); // Emit leading zero
-
-	if (dot_pos == 0)
-		return;
-
-	// Print dot
-	uart_write_ch('.');
-
-	// Print value after dot
-	for (; i > 0; i--) {
+	for (i = highest_nonzero+1; i > 0; i--) {
 		uart_write_ch(ch[i-1]);
 	}
 }
 
-#define uart_write_int(val) uart_write_int_dot(val, 0)
-#define uart_write_fixed_point(val) uart_write_int_dot(val, 3)
+void uart_write_fixed_point(uint16_t val)
+{
+	uint16_t tmp;
+	uint32_t big;
+	
+	// Print the integer part
+	tmp = val >> 10;
+	uart_write_int(tmp);
+	uart_write_ch('.');
+
+	// Remove the integer part
+	tmp <<= 10;
+	big = val - tmp;
+
+	// Take three decimal digits from the fraction part
+	big *= 1000;
+	big >>= 10;
+	val = big;
+
+	// Pad with zeros if the number is too small
+	if (val < 100)
+		uart_write_ch('0');
+	if (val < 10)
+		uart_write_ch('0');
+
+	// Write the remaining fractional part
+	uart_write_int(val);
+}
 
 void uart_write_from_buf(void)
 {
@@ -222,38 +229,58 @@ void set_output(uint8_t *s)
 
 uint16_t parse_fixed_point(uint8_t *s)
 {
+	uint8_t *t = s;
 	uint16_t val = 0;
 	uint16_t fraction_digits = 0;
 	uint16_t whole_digits = 0;
-	uint8_t fraction = 0;
+	uint16_t fraction_factor = 1;
 
 	for (; *s != 0; s++) {
+		uart_write_ch('W');
+		uart_write_ch(*s);
+		uart_write_str("\r\n");
 		if (*s == '.') {
-			fraction = 1;
-		} else if (*s >= '0' && *s <= '9') {
+			s++; // Skip the dot
+			break;
+		}
+		if (*s >= '0' && *s <= '9') {
 			val = *s - '0';
-			if (fraction) {
-				fraction_digits *= 10;
-				fraction_digits += val;
-				if (fraction_digits > 1000) {
-					uart_write_str("TOO MANY DIGITS IN THE FRACTION\r\n");
-					return 0xFFFF;
-				}
-			} else {
-				whole_digits *= 10;
-				whole_digits += val;
-				if (whole_digits > 100) {
-					uart_write_str("TOO MANY DIGITS IN THE WHOLE PART\r\n");
-					return 0xFFFF;
-				}
-			}
+			whole_digits *= 10;
+			whole_digits += val;
+			if (whole_digits > 62)
+				goto invalid_number;
 		} else {
-			uart_write_str("INVALID CHARACTER IN A NUMBER\r\n");
-			return 0xFFFF;
+			goto invalid_number;
 		}
 	}
 
-	return whole_digits * 1000 + fraction_digits;
+	whole_digits <<= 10;
+
+	for (; *s != 0 && fraction_factor < 1000; s++) {
+		uart_write_ch('F');
+		uart_write_ch(*s);
+		uart_write_str("\r\n");
+		if (*s >= '0' && *s <= '9') {
+			val = *s - '0';
+			fraction_digits *= 10;
+			fraction_digits += val;
+			fraction_factor *= 10;
+		} else {
+			goto invalid_number;
+		}
+	}
+
+	fraction_digits <<= 10;
+	fraction_digits /= fraction_factor;
+
+	return whole_digits + fraction_digits;
+
+invalid_number:
+	uart_write_str("INVALID NUMBER '");
+	uart_write_str(t);
+	uart_write_ch('\'');
+	uart_write_str("\r\n");
+	return 0xFFFF;
 }
 
 void set_voltage(uint8_t *s)
@@ -526,16 +553,18 @@ void config_load(void)
 	strcpy(cfg_name, "Unnamed");
 	cfg_default = 0;
 	cfg_output = 0;
-	cfg_vset = 5000;
-	cfg_cset = 1000;
+	cfg_vset = 5<<10; // 5V
+	cfg_cset = (1<<10) / 2; // 0.5A
 	cfg_vshutdown = 0;
 	cfg_cshutdown = 0;
 
-	cal_vin_a = 53.67915;
-	cal_vin_b = 0.25368;
+	cal_vin = 16 << 10;
 
-	cal_vout = 54.0;
-	cal_cout = 2.0;
+	cal_vout_a = FLOAT_TO_FIXED(0.068*15.0/16.0, 10);
+	cal_vout_b = FLOAT_TO_FIXED(0.031 / 0.068, 10);
+
+	cal_cout_a = FLOAT_TO_FIXED(1.25, 10);
+	cal_cout_b = FLOAT_TO_FIXED(0.031/0.068, 10);
 
 	state_pc3 = 1;
 }
@@ -559,23 +588,35 @@ void read_state(void)
 		uint16_t val = ADC1_DRL;
 		uint16_t valh = ADC1_DRH;
 		uint8_t ch = ADC1_CSR & 0x0F;
+		uint32_t tmp;
 
 		val |= valh << 8;
 
 		switch (ch) {
 			case 2:
 				state_cout_raw = val;
-				state_cout = (val * cal_cout) / 1024.0 * 1000.0;
+				// Calculation: val * cal_cout_a * 3.3 / 1024 - cal_cout_b
+				tmp = val * cal_cout_a * ref_volt_10;
+				tmp >>= 10;
+				tmp -= cal_vout_b;
+				state_cout = tmp;
 				ch = 3;
 				break;
 			case 3:
 				state_vout_raw = val;
-				state_vout = (val * cal_vout) / 1024.0 * 1000.0;
+				// Calculation: val * cal_vout_a * 3.3 / 1024 - cal_vout_b
+				tmp = val * cal_vout_a * ref_volt_10;
+				tmp >>= 10;
+				tmp -= cal_vout_b;
+				state_vout = tmp;
 				ch = 4;
 				break;
 			case 4:
 				state_vin_raw = val;
-				state_vin = (( val * cal_vin_a ) / 1024.0 + cal_vin_b) * 1000.0;
+				// Calculation: val * cal_vin * 3.3 / 1024
+				tmp = val * cal_vin * ref_volt_10;
+				tmp >>= 10;
+				state_vin = tmp;
 				ch = 2;
 				break;
 		}
@@ -591,13 +632,15 @@ uint8_t output_state(void)
 
 void control_voltage(void)
 {
-	float pwm_val = PWM_VAL;
-	float maxpwm = cap_vmaxpwm;
-	float vset = cfg_vset;
-	float val = vset * pwm_val;
+	uint32_t tmp;
 	uint16_t ctr;
-	val /= cap_vmaxpwm;
-	ctr = val;
+
+	tmp = cfg_vset;
+	tmp *= PWM_VAL;
+	tmp /= cap_vmaxpwm;
+	tmp >>= 10; // vset is fixed point, remove the decimal point or we overflow
+
+	ctr = tmp;
 
 	uart_write_str("VPWM ");
 	uart_write_int(ctr);
@@ -617,13 +660,15 @@ void control_voltage(void)
 
 void control_current(void)
 {
-	float pwm_val = PWM_VAL;
-	float maxpwm = cap_cmaxpwm;
-	float cset = cfg_cset;
-	float val = cset * pwm_val;
+	uint32_t tmp;
 	uint16_t ctr;
-	val /= cap_cmaxpwm;
-	ctr = val;
+
+	tmp = cfg_cset;
+	tmp *= PWM_VAL;
+	tmp /= cap_cmaxpwm;
+	tmp >>= 10; // cset is fixed point, remove the decimal point or we overflow
+
+	ctr = tmp;
 
 	uart_write_str("CPWM ");
 	uart_write_int(ctr);

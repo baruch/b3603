@@ -71,16 +71,6 @@ void uart_write_ch(const char ch)
 		uart_write_buf[uart_write_len++] = ch;
 }
 
-void uart_flush_write()
-{
-	while(!(USART1_SR & USART_SR_TXE));
-}
-
-uint8_t uart_write_free_space(void)
-{
-	return sizeof(uart_write_buf) - uart_write_len;
-}
-
 void uart_write_str(const char *str)
 {
 	uint8_t i;

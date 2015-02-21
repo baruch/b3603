@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include <ctype.h>
 
+#include "display.h"
+#include "fixedpoint.h"
+
 #define PWM_HIGH 0x3F
 #define PWM_LOW 0xFF
 #define PWM_VAL ((PWM_HIGH<<8) | PWM_LOW)
@@ -450,10 +453,10 @@ void pinout_init()
 {
 	// PA1 is 74HC595 SHCP, output
 	// PA2 is 74HC595 STCP, output
-	PA_DDR = 0;
+	PA_ODR = 0;
 	PA_DDR = (1<<1) | (1<<2);
-	PA_CR1 = 0;
-	PA_CR2 = 0;
+	PA_CR1 = (1<<1) | (1<<2);
+	PA_CR2 = (1<<1) | (1<<2);
 
 	// PB4 is Enable control, output
 	// PB5 is CV/CC sense, input
@@ -475,9 +478,10 @@ void pinout_init()
 	// PD1 is Button 2, input
 	// PD2 is Vout sense, input adc, AIN3
 	// PD3 is Vin sense, input adc, AIN4
-	PD_DDR = 0;
-	PD_CR1 = (1<<1); // For the button
-	PD_CR2 = 0;
+	// PD4 is 74HC595 DS, output
+	PD_DDR = (1<<4);
+	PD_CR1 = (1<<1) | (1<<4); // For the button
+	PD_CR2 = (1<<4);
 }
 
 void pwm_init(void)
@@ -608,6 +612,22 @@ void read_state(void)
 				tmp >>= 10;
 				state_vin = tmp;
 				ch = 2;
+				{
+					uint8_t ch3;
+					uint8_t ch2;
+					uint8_t ch1;
+					uint8_t ch4;
+
+					ch4 = '0' + (val % 10);
+					val /= 10;
+					ch3 = '0' + (val % 10);
+					val /= 10;
+					ch2 = '0' + (val % 10);
+					val /= 10;
+					ch1 = '0' + (val % 10);
+
+					display_show(ch1, 1, ch2, 0, ch3, 0, ch4, 0);
+				}
 				break;
 		}
 
@@ -720,6 +740,7 @@ int main()
 	uart_init();
 	pwm_init();
 	adc_init();
+	display_init();
 
 	config_load();
 
@@ -735,6 +756,7 @@ int main()
 
 		read_state();
 		control_outputs();
+		display_refresh();
 
 		uart_read_to_buf();
 		if (read_newline) {

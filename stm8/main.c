@@ -266,7 +266,7 @@ uint16_t parse_fixed_point(uint8_t *s)
 	fraction_digits <<= 10;
 	fraction_digits /= fraction_factor;
 
-	return whole_digits + fraction_digits;
+	return whole_digits + fraction_digits + 1;
 
 invalid_number:
 	uart_write_str("INVALID NUMBER '");

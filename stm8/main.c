@@ -278,10 +278,10 @@ void process_input()
 			} else if (strcmp(uart_read_buf, "CURRENT") == 0) {
 				set_current(uart_read_buf + idx + 1);
 			} else {
-	//			uart_write_str("UNKNOWN COMMAND!\r\n");
+				uart_write_str("UNKNOWN COMMAND!\r\n");
 			}
 		} else {
-	//		uart_write_str("UNKNOWN COMMAND\r\n");
+			uart_write_str("UNKNOWN COMMAND\r\n");
 		}
 	}
 

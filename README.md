@@ -5,6 +5,8 @@ out how it works, then it should be possible to create an alternative firmware.
 Either by driving it with another board on the same control points or by
 replacing the original firmware with one of my own.
 
+*Current state*: Work in Progress, not sufficiently functional to be used by anyone
+
 ## Schematics
 
 These were done by flex, the discussion can be seen in the EEVBlog forum (link at the bottom).

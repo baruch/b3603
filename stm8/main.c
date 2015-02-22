@@ -9,9 +9,9 @@
 #include "fixedpoint.h"
 #include "uart.h"
 
-#define PWM_HIGH 0x3F
-#define PWM_LOW 0xFF
-#define PWM_VAL ((PWM_HIGH<<8) | PWM_LOW)
+#define PWM_VAL 12374
+#define PWM_HIGH (PWM_VAL >> 8)
+#define PWM_LOW (PWM_VAL & 0xFF)
 
 const uint16_t cap_vmin = (1<<10) / 100; // 10 mV
 const uint16_t cap_vmax = 35<<10; // 35 V
@@ -21,9 +21,7 @@ const uint16_t cap_vmaxpwm = 35;
 const uint16_t cap_cmin = (1<<10) / 1000; // 1 mA
 const uint16_t cap_cmax = 3<<10; // 3 A
 const uint16_t cap_cstep = (1<<10) / 1000; // 1 mA
-const uint16_t cap_cmaxpwm = 5;
-
-const uint16_t ref_volt_10 = (33<<10) / 10; // 3.3V
+const uint16_t cap_cmaxpwm = 3;
 
 uint16_t cal_vin;
 uint16_t cal_vout_a;

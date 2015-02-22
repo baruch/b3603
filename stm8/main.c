@@ -640,7 +640,6 @@ int main()
 	uart_init();
 	pwm_init();
 	adc_init();
-	display_init();
 
 	config_load();
 

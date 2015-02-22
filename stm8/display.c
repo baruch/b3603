@@ -3,6 +3,9 @@
 
 uint8_t display_idx;
 uint8_t display_data[4];
+uint8_t pending_display_data[4];
+uint8_t pending_update;
+uint16_t timer;
 
 static const display_number[10] = {
 	0xFC, // '0'
@@ -16,11 +19,6 @@ static const display_number[10] = {
 	0xFE, // '8'
 	0xF6, // '9'
 };
-
-void display_init(void)
-{
-	// We assume that the pins were already configured
-}
 
 #define SET_DATA(bit) do { if (bit) { PD_ODR |= (1<<4); } else { PD_ODR &= ~(1<<4); }} while (0)
 #define PULSE_CLOCK() do { PA_ODR |= (1<<1); PA_ODR &= ~(1<<1); } while (0)
@@ -42,9 +40,20 @@ void display_word(uint16_t word)
 void display_refresh(void)
 {
 	int i = display_idx++;
-
 	uint8_t bit = 8+(i*2);
 	uint16_t digit = 0xFF00 ^ (3<<bit);
+
+	if (timer > 0)
+		timer--;
+	if (pending_update && timer == 0) {
+		display_data[0] = pending_display_data[0];
+		display_data[1] = pending_display_data[1];
+		display_data[2] = pending_display_data[2];
+		display_data[3] = pending_display_data[3];
+		pending_update = 0;
+		timer = 1500; // 1/2 of a second, approximately
+	}
+
 	display_word(digit | display_data[i]);
 
 	if (display_idx == 4)
@@ -62,8 +71,9 @@ uint8_t display_char(uint8_t ch, uint8_t dot)
 
 void display_show(uint8_t ch1, uint8_t dot1, uint8_t ch2, uint8_t dot2, uint8_t ch3, uint8_t dot3, uint8_t ch4, uint8_t dot4)
 {
-	display_data[3] = display_char(ch1, dot1);
-	display_data[2] = display_char(ch2, dot2);
-	display_data[1] = display_char(ch3, dot3);
-	display_data[0] = display_char(ch4, dot4);
+	pending_display_data[3] = display_char(ch1, dot1);
+	pending_display_data[2] = display_char(ch2, dot2);
+	pending_display_data[1] = display_char(ch3, dot3);
+	pending_display_data[0] = display_char(ch4, dot4);
+	pending_update = 1;
 }

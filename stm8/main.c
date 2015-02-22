@@ -224,7 +224,7 @@ uint16_t parse_fixed_point(uint8_t *s)
 {
 	uint8_t *t = s;
 	uint16_t val = 0;
-	uint16_t fraction_digits = 0;
+	uint32_t fraction_digits = 0;
 	uint16_t whole_digits = 0;
 	uint16_t fraction_factor = 1;
 

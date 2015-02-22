@@ -498,20 +498,24 @@ void read_state(void)
 				state_vin = adc_to_volt(val, cal_vin);
 				ch = 2;
 				{
-					uint8_t ch3;
-					uint8_t ch2;
 					uint8_t ch1;
+					uint8_t ch2;
+					uint8_t ch3;
 					uint8_t ch4;
 
-					ch4 = '0' + (val % 10);
-					val /= 10;
-					ch3 = '0' + (val % 10);
-					val /= 10;
-					ch2 = '0' + (val % 10);
-					val /= 10;
-					ch1 = '0' + (val % 10);
+					val = state_vin >> 10;
 
-					display_show(ch1, 1, ch2, 0, ch3, 0, ch4, 0);
+					ch2 = '0' + (val % 10);
+					ch1 = '0' + (val / 10) % 10;
+
+					val = state_vin - (val<<10);
+					val *= 100;
+					val >>= 10;
+
+					ch4 = '0' + (val % 10);
+					ch3 = '0' + (val / 10) % 10;
+
+					display_show(ch1, 0, ch2, 1, ch3, 0, ch4, 0);
 				}
 				break;
 		}

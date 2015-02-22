@@ -400,11 +400,11 @@ void config_load(void)
 
 	cal_vin = 16 << 10;
 
-	cal_vout_a = FLOAT_TO_FIXED(0.068*15.0/16.0, 10);
-	cal_vout_b = FLOAT_TO_FIXED(0.031 / 0.068, 10);
+	cal_vout_a = 14027; // 1/0.073 << 10
+	cal_vout_b = 462; // (452<<10) / 1000; giving constant here since it can overflow in uint16_t
 
-	cal_cout_a = FLOAT_TO_FIXED(1.25, 10);
-	cal_cout_b = FLOAT_TO_FIXED(0.031/0.068, 10);
+	cal_cout_a = 1280; //(125<<10)/100; giving constant here since it can overflow in uint16_t
+	cal_cout_b = (2<<10)/10;
 
 	state_pc3 = 1;
 }

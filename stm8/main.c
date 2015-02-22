@@ -229,9 +229,6 @@ uint16_t parse_fixed_point(uint8_t *s)
 	uint16_t fraction_factor = 1;
 
 	for (; *s != 0; s++) {
-		uart_write_ch('W');
-		uart_write_ch(*s);
-		uart_write_str("\r\n");
 		if (*s == '.') {
 			s++; // Skip the dot
 			break;
@@ -250,9 +247,6 @@ uint16_t parse_fixed_point(uint8_t *s)
 	whole_digits <<= 10;
 
 	for (; *s != 0 && fraction_factor < 1000; s++) {
-		uart_write_ch('F');
-		uart_write_ch(*s);
-		uart_write_str("\r\n");
 		if (*s >= '0' && *s <= '9') {
 			val = *s - '0';
 			fraction_digits *= 10;

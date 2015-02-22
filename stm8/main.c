@@ -475,13 +475,21 @@ void read_state(void)
 			case 2:
 				state_cout_raw = val;
 				// Calculation: val * cal_cout_a * 3.3 / 1024 - cal_cout_b
-				state_cout = adc_to_volt(val, cal_cout_a) - cal_cout_b;
+				state_cout = adc_to_volt(val, cal_cout_a);
+				if (state_cout <= cal_cout_b)
+					state_cout = 0;
+				else
+					state_cout -= cal_cout_b;
 				ch = 3;
 				break;
 			case 3:
 				state_vout_raw = val;
 				// Calculation: val * cal_vout_a * 3.3 / 1024 - cal_vout_b
-				state_vout = adc_to_volt(val, cal_vout_a) - cal_vout_b;
+				state_vout = adc_to_volt(val, cal_vout_a);
+				if (state_vout <= cal_vout_b)
+					state_vout = 0;
+				else
+					state_vout -= cal_vout_b;
 				ch = 4;
 				break;
 			case 4:

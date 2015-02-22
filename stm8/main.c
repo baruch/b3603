@@ -562,16 +562,20 @@ void control_outputs(void)
 			// We turned on the PWMs above already
 			PB_ODR &= ~(1<<4);
 		} else {
+			// Set Output Enable OFF
 			PB_ODR |= (1<<4);
 
+			// Turn off PWM for Iout
 			TIM1_CCR1H = 0;
 			TIM1_CCR1L = 0;
 			TIM1_CR1 &= 0xFE; // Disable timer
 
+			// Turn off PWM for Vout
 			TIM2_CCR1H = 0;
 			TIM2_CCR1L = 0;
 			TIM2_CR1 &= 0xFE; // Disable timer
 
+			// Make sure we update the PWMs when we turn output on next time
 			out_voltage = 0;
 			out_current = 0;
 		}

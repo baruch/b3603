@@ -426,6 +426,18 @@ void cvcc_led_off(void)
 	PA_DDR &= ~(1<<3);
 }
 
+uint16_t adc_to_volt(uint16_t adc, uint16_t calibrated_factor)
+{
+	uint32_t tmp = adc;
+
+	tmp *= calibrated_factor;
+	tmp *= 33;
+	tmp /= 10;
+	tmp >>= 10;
+
+	return tmp;
+}
+
 void read_state(void)
 {
 	uint8_t tmp;
@@ -456,7 +468,6 @@ void read_state(void)
 		uint16_t val = ADC1_DRL;
 		uint16_t valh = ADC1_DRH;
 		uint8_t ch = ADC1_CSR & 0x0F;
-		uint32_t tmp;
 
 		val |= valh << 8;
 
@@ -464,27 +475,19 @@ void read_state(void)
 			case 2:
 				state_cout_raw = val;
 				// Calculation: val * cal_cout_a * 3.3 / 1024 - cal_cout_b
-				tmp = val * cal_cout_a * ref_volt_10;
-				tmp >>= 10;
-				tmp -= cal_vout_b;
-				state_cout = tmp;
+				state_cout = adc_to_volt(val, cal_cout_a) - cal_cout_b;
 				ch = 3;
 				break;
 			case 3:
 				state_vout_raw = val;
 				// Calculation: val * cal_vout_a * 3.3 / 1024 - cal_vout_b
-				tmp = val * cal_vout_a * ref_volt_10;
-				tmp >>= 10;
-				tmp -= cal_vout_b;
-				state_vout = tmp;
+				state_vout = adc_to_volt(val, cal_vout_a) - cal_vout_b;
 				ch = 4;
 				break;
 			case 4:
 				state_vin_raw = val;
 				// Calculation: val * cal_vin * 3.3 / 1024
-				tmp = val * cal_vin * ref_volt_10;
-				tmp >>= 10;
-				state_vin = tmp;
+				state_vin = adc_to_volt(val, cal_vin);
 				ch = 2;
 				{
 					uint8_t ch3;

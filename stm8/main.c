@@ -300,15 +300,16 @@ void pinout_init()
 {
 	// PA1 is 74HC595 SHCP, output
 	// PA2 is 74HC595 STCP, output
+	// PA3 is CV/CC leds, output (& input to disable)
 	PA_ODR = 0;
 	PA_DDR = (1<<1) | (1<<2);
-	PA_CR1 = (1<<1) | (1<<2);
-	PA_CR2 = (1<<1) | (1<<2);
+	PA_CR1 = (1<<1) | (1<<2) | (1<<3);
+	PA_CR2 = (1<<1) | (1<<2) | (1<<3);
 
 	// PB4 is Enable control, output
 	// PB5 is CV/CC sense, input
 	PB_ODR = (1<<4); // For safety we start with off-state
-	PB_DDR = (1<<4);
+	PB_DDR = (1<<4) | (1<<5);
 	PB_CR1 = 0;
 	PB_CR2 = 0;
 
@@ -410,6 +411,23 @@ void config_load(void)
 	state_pc3 = 1;
 }
 
+void cvcc_led_cc(void)
+{
+	PA_ODR &= ~(1<<3);
+	PA_DDR |= (1<<3);
+}
+
+void cvcc_led_cv(void)
+{
+	PA_ODR |= (1<<3);
+	PA_DDR |= (1<<3);
+}
+
+void cvcc_led_off(void)
+{
+	PA_DDR &= ~(1<<3);
+}
+
 void read_state(void)
 {
 	uint8_t tmp;
@@ -421,6 +439,17 @@ void read_state(void)
 		uart_write_ch('0' + tmp);
 		uart_write_str("\r\n");
 		state_pc3 = tmp;
+	}
+
+	tmp = (PB_IDR & (1<<5)) ? 1 : 0;
+	if (state_constant_current != tmp) {
+		state_constant_current = tmp;
+		if (cfg_output) {
+			if (state_constant_current)
+				cvcc_led_cc();
+			else
+				cvcc_led_cv();
+		}
 	}
 
 	if ((ADC1_CSR & 0x0F) == 0) {
@@ -561,6 +590,10 @@ void control_outputs(void)
 		if (cfg_output) {
 			// We turned on the PWMs above already
 			PB_ODR &= ~(1<<4);
+
+			// Set the CV/CC to some value, it will get reset to actual on next polling cycle
+			state_constant_current = 0;
+			cvcc_led_cv();
 		} else {
 			// Set Output Enable OFF
 			PB_ODR |= (1<<4);
@@ -578,6 +611,9 @@ void control_outputs(void)
 			// Make sure we update the PWMs when we turn output on next time
 			out_voltage = 0;
 			out_current = 0;
+
+			// Turn off CV/CC led
+			cvcc_led_off();
 		}
 	}
 }

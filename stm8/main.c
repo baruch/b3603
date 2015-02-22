@@ -411,13 +411,13 @@ void config_load(void)
 
 void cvcc_led_cc(void)
 {
-	PA_ODR &= ~(1<<3);
+	PA_ODR |= (1<<3);
 	PA_DDR |= (1<<3);
 }
 
 void cvcc_led_cv(void)
 {
-	PA_ODR |= (1<<3);
+	PA_ODR &= ~(1<<3);
 	PA_DDR |= (1<<3);
 }
 

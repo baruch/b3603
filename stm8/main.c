@@ -351,7 +351,7 @@ void pwm_init(void)
 	TIM2_ARRH = PWM_HIGH; // Reload counter = 16384
 	TIM2_ARRL = PWM_LOW;
 	TIM2_PSCR = 0; // Prescaler 0 means division by 1
-	TIM2_CR1 = 0x10; // Down direction
+	TIM2_CR1 = 0x00;
 
 	TIM2_CCMR1 = 0x70;    //  Set up to use PWM mode 2.
 	TIM2_CCER1 = 0x03;    //  Output is enabled for channel 1, active low

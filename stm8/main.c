@@ -308,7 +308,7 @@ void pinout_init()
 	// PB5 is CV/CC sense, input
 	PB_ODR = (1<<4); // For safety we start with off-state
 	PB_DDR = (1<<4) | (1<<5);
-	PB_CR1 = 0;
+	PB_CR1 = (1<<4);
 	PB_CR2 = 0;
 
 	// PC3 is unknown, input
@@ -319,7 +319,7 @@ void pinout_init()
 	PC_ODR = 0;
 	PC_DDR = (1<<5) || (1<<6);
 	PC_CR1 = (1<<7); // For the button
-	PC_CR2 = 0;
+	PC_CR2 = (1<<5) | (1<<6);
 
 	// PD1 is Button 2, input
 	// PD2 is Vout sense, input adc, AIN3

@@ -534,10 +534,26 @@ void control_voltage(void)
 	uint32_t tmp;
 	uint16_t ctr;
 
+	// tmp = cfg_vset * 0.073
 	tmp = cfg_vset;
+	tmp *= 73<<10;
+	tmp /= 1000;
+	tmp >>= 10;
+
+	// tmp += 0.033
+	tmp += (33<<10)/1000;
+
+	// Here we have in tmp the Vout control value
+	// Now we want to calculate the PWM counter
+	// (tmp/3.3) * PWM_VAL
+
+	// tmp *= PWM_VAL
 	tmp *= PWM_VAL;
-	tmp /= cap_vmaxpwm;
-	tmp >>= 10; // vset is fixed point, remove the decimal point or we overflow
+	tmp >>= 10; // Now we strip the fraction from the number
+
+	// tmp /= 3.3v => tmp *= (1/3.3v) 
+	tmp *= 310; //(303<<10)/1000
+	tmp >>= 10;
 
 	ctr = tmp;
 
@@ -558,9 +574,16 @@ void control_current(void)
 	uint16_t ctr;
 
 	tmp = cfg_cset;
+	tmp *= (8<<10) / 10;
+	tmp >>= 10;
+
+	tmp += (16<<10) / 100;
+
 	tmp *= PWM_VAL;
-	tmp /= cap_cmaxpwm;
-	tmp >>= 10; // cset is fixed point, remove the decimal point or we overflow
+	tmp >>= 10;
+
+	tmp *= 310; // 1/3.3
+	tmp >>= 10;
 
 	ctr = tmp;
 

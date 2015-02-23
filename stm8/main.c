@@ -543,16 +543,11 @@ void control_voltage(void)
 
 	uart_write_str("VPWM ");
 	uart_write_int(ctr);
-	uart_write_ch(' ');
-
-	TIM1_CCR1H = ctr >> 8;
-	TIM1_CCR1L = ctr & 0xFF;
-	TIM1_CR1 |= 0x01; // Enable timer
-
-	uart_write_int(TIM1_CCR1H);
-	uart_write_ch(' ');
-	uart_write_int(TIM1_CCR1L);
 	uart_write_str("\r\n");
+
+	TIM2_CCR1H = ctr >> 8;
+	TIM2_CCR1L = ctr & 0xFF;
+	TIM2_CR1 |= 0x01; // Enable timer
 
 	out_voltage = cfg_vset;
 }
@@ -571,16 +566,11 @@ void control_current(void)
 
 	uart_write_str("CPWM ");
 	uart_write_int(ctr);
-	uart_write_ch(' ');
-
-	TIM2_CCR1H = ctr >> 8;
-	TIM2_CCR1L = ctr & 0xFF;
-	TIM2_CR1 |= 0x01; // Enable timer
-
-	uart_write_int(TIM2_CCR1H);
-	uart_write_ch(' ');
-	uart_write_int(TIM2_CCR1L);
 	uart_write_str("\r\n");
+
+	TIM1_CCR1H = ctr >> 8;
+	TIM1_CCR1L = ctr & 0xFF;
+	TIM1_CR1 |= 0x01; // Enable timer
 
 	out_current = cfg_cset;
 }

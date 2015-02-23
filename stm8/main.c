@@ -9,7 +9,7 @@
 #include "fixedpoint.h"
 #include "uart.h"
 
-#define PWM_VAL 12374
+#define PWM_VAL 0x2000
 #define PWM_HIGH (PWM_VAL >> 8)
 #define PWM_LOW (PWM_VAL & 0xFF)
 

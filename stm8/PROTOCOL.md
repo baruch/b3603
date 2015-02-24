@@ -99,7 +99,9 @@ intervention when the power comes back after a power outage.
 * Receive: "VSHUTDOWN: X.XXXX" or "VSHUTDOWN: DISABLED"
 
 When a VSHUTDOWN is set and reached the unit will turn off the output to avoid
-an over-voltage situation.
+an over-voltage situation. This would be used in a constant current situation
+by setting the shutdown voltage lower than the max controlled voltage and let
+the microcontroller shutdown the entire output if the limit is reached.
 
 ### Over current protection
 

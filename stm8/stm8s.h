@@ -231,3 +231,8 @@
 /* ---------------- CPU/SWIM registers ----------------*/
 #define CFG_GCR *(unsigned char*)0x7F60
 #define SWIM_CSR *(unsigned char*)0x7F80
+
+/* IWDG */
+#define IWDG_KR *(unsigned char *)0x50E0
+#define IWDG_PR *(unsigned char *)0x50E1
+#define IWDG_RLR *(unsigned char *)0x50E2

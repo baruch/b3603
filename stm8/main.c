@@ -47,6 +47,17 @@ uint8_t state_pc3;
 uint16_t out_voltage;
 uint16_t out_current;
 
+inline iwatchdog_init(void)
+{
+	IWDG_KR = 0xCC; // Enable IWDG
+	// The default values give us about 15msec between pings
+}
+
+inline iwatchdog_tick(void)
+{
+	IWDG_KR = 0xAA; // Reset the counter
+}
+
 void set_name(uint8_t *name)
 {
 	uint8_t idx;
@@ -253,6 +264,13 @@ void process_input()
 		uart_write_str("\r\nCONSTANT: ");
 		uart_write_str(state_constant_current ? "CURRENT" : "VOLTAGE");
 		uart_write_str("\r\n");
+#if DEBUG
+	} else if (strcmp(uart_read_buf, "STUCK") == 0) {
+		// Allows debugging of the IWDG feature
+		uart_write_str("STUCK\r\n");
+		while (1)
+			uart_write_from_buf(); // Flush write buf outside
+#endif
 	} else {
 		// Process commands with arguments
 		uint8_t idx;
@@ -649,11 +667,14 @@ int main()
 	if (cfg_default)
 		cfg_output = 1;
 
+	iwatchdog_init();
+
 	control_outputs();
 
 	uart_write_str("\r\nB3606 starting: Version " FW_VERSION "\r\n");
 
 	do {
+		iwatchdog_tick();
 		uart_write_from_buf();
 
 		read_state();

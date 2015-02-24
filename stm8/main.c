@@ -16,12 +16,10 @@
 const uint16_t cap_vmin = (1<<10) / 100; // 10 mV
 const uint16_t cap_vmax = 35<<10; // 35 V
 const uint16_t cap_vstep = (1<<10) / 100; // 10mV
-const uint16_t cap_vmaxpwm = 35;
 
 const uint16_t cap_cmin = (1<<10) / 1000; // 1 mA
 const uint16_t cap_cmax = 3<<10; // 3 A
 const uint16_t cap_cstep = (1<<10) / 1000; // 1 mA
-const uint16_t cap_cmaxpwm = 3;
 
 uint16_t cal_vin;
 uint16_t cal_vout_a;

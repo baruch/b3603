@@ -1,6 +1,6 @@
 SRC=main.c display.c uart.c
 OBJ=$(SRC:.c=.rel)
-SDCC=sdcc -lstm8 -mstm8 --opt-code-size
+SDCC=sdcc -lstm8 -mstm8 --opt-code-size --std-c99
 
 all: b3603.ihx
 

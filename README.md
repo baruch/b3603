@@ -5,7 +5,7 @@ out how it works, then it should be possible to create an alternative firmware.
 Either by driving it with another board on the same control points or by
 replacing the original firmware with one of my own.
 
-**Current state**: Work in Progress, not sufficiently functional to be used by anyone
+**Current state**: Work in Progress, basic functionality working over serial control
 
 ## Schematics
 

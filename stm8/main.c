@@ -557,10 +557,6 @@ void control_voltage(void)
 
 	ctr = tmp;
 
-	uart_write_str("VPWM ");
-	uart_write_int(ctr);
-	uart_write_str("\r\n");
-
 	TIM2_CCR1H = ctr >> 8;
 	TIM2_CCR1L = ctr & 0xFF;
 	TIM2_CR1 |= 0x01; // Enable timer
@@ -586,10 +582,6 @@ void control_current(void)
 	tmp >>= 10;
 
 	ctr = tmp;
-
-	uart_write_str("CPWM ");
-	uart_write_int(ctr);
-	uart_write_str("\r\n");
 
 	TIM1_CCR1H = ctr >> 8;
 	TIM1_CCR1L = ctr & 0xFF;

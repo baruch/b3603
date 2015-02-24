@@ -673,6 +673,10 @@ int main()
 
 	uart_write_str("\r\nB3606 starting: Version " FW_VERSION "\r\n");
 
+	if ((OPT2 & 1) == 0) {
+		uart_write_str("OPT1 bit AFR0 is not properly set! Output control will not work!\r\n");
+	}
+
 	do {
 		iwatchdog_tick();
 		uart_write_from_buf();

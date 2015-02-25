@@ -3,6 +3,9 @@
 
 #include <string.h>
 
+#define SYSTEM_CONFIG ((cfg_system_t *)0x4000)
+#define OUTPUT_CONFIG ((cfg_output_t *)0x4040)
+
 void validate_system_config(cfg_system_t *sys)
 {
 	if (sys->name[0] == 0) {
@@ -39,7 +42,13 @@ void validate_system_config(cfg_system_t *sys)
 
 void config_load_system(cfg_system_t *sys)
 {
+	memcpy(sys, SYSTEM_CONFIG, sizeof(*sys));
 	validate_system_config(sys);
+}
+
+void config_save_system(cfg_system_t *sys)
+{
+	eeprom_save_data((uint8_t*)SYSTEM_CONFIG, (uint8_t*)sys, sizeof(*sys));
 }
 
 void validate_output_config(cfg_output_t *cfg)
@@ -55,5 +64,11 @@ void validate_output_config(cfg_output_t *cfg)
 
 void config_load_output(cfg_output_t *cfg)
 {
+	memcpy(cfg, OUTPUT_CONFIG, sizeof(*cfg));
 	validate_output_config(cfg);
+}
+
+void config_save_output(cfg_output_t *cfg)
+{
+	eeprom_save_data((uint8_t*)OUTPUT_CONFIG, (uint8_t*)cfg, sizeof(*cfg));
 }

@@ -312,6 +312,10 @@ void process_input()
 	} else if (strcmp(uart_read_buf, "COMMIT") == 0) {
 		output_commit(&cfg_output, &cfg_system);
 		output_check_state(&cfg_output, state_constant_current);
+	} else if (strcmp(uart_read_buf, "SAVE") == 0) {
+		config_save_system(&cfg_system);
+		config_save_output(&cfg_output);
+		uart_write_str("SAVED\r\n");
 #if DEBUG
 	} else if (strcmp(uart_read_buf, "STUCK") == 0) {
 		// Allows debugging of the IWDG feature

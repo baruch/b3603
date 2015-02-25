@@ -191,9 +191,40 @@ void process_input()
 		uart_write_str("MODEL: B3606\r\n");
 	} else if (strcmp(uart_read_buf, "VERSION") == 0) {
 		uart_write_str("VERSION: " FW_VERSION "\r\n");
-	} else if (strcmp(uart_read_buf, "NAME") == 0) {
+	} else if (strcmp(uart_read_buf, "SYSTEM") == 0) {
+		uart_write_str("MODEL: B3606\r\n");
+		uart_write_str("VERSION: " FW_VERSION "\r\n");
 		uart_write_str("NAME: ");
 		uart_write_str(cfg_system.name);
+		uart_write_str("\r\n");
+		uart_write_str("ONSTARTUP: ");
+		uart_write_str(cfg_system.default_on ? "ON" : "OFF");
+		uart_write_str("\r\n");
+	} else if (strcmp(uart_read_buf, "CALIBRATION") == 0) {
+		uart_write_str("CALIBRATE VIN ADC: ");
+		uart_write_fixed_point(cfg_system.vin_adc.a);
+		uart_write_ch('/');
+		uart_write_fixed_point(cfg_system.vin_adc.b);
+		uart_write_str("\r\n");
+		uart_write_str("CALIBRATE VOUT ADC: ");
+		uart_write_fixed_point(cfg_system.vout_adc.a);
+		uart_write_ch('/');
+		uart_write_fixed_point(cfg_system.vout_adc.b);
+		uart_write_str("\r\n");
+		uart_write_str("CALIBRATE COUT ADC: ");
+		uart_write_fixed_point(cfg_system.cout_adc.a);
+		uart_write_ch('/');
+		uart_write_fixed_point(cfg_system.cout_adc.b);
+		uart_write_str("\r\n");
+		uart_write_str("CALIBRATE VOUT PWM: ");
+		uart_write_fixed_point(cfg_system.vout_pwm.a);
+		uart_write_ch('/');
+		uart_write_fixed_point(cfg_system.vout_pwm.b);
+		uart_write_str("\r\n");
+		uart_write_str("CALIBRATE COUT PWM: ");
+		uart_write_fixed_point(cfg_system.cout_pwm.a);
+		uart_write_ch('/');
+		uart_write_fixed_point(cfg_system.cout_pwm.b);
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "VLIST") == 0) {
 		uart_write_str("VLIST:\r\nVOLTAGE MIN: ");

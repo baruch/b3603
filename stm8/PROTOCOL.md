@@ -31,13 +31,12 @@ to use the same controller board and then the model returned may be different.
 * Send: "VERSION"
 * Receive: "VERSION: X.XX"
 
-### Name Query
+### System Configuration Query
 
-* Send: "NAME"
-* Receive: "NAME: <name>"
+* Send: "SYSTEM"
+* Receive: "SYSTEM:\r\nMODEL: <model>\r\nVERSION: <version>\r\nNAME: <name>\r\nONSTARTUP: <ON/OFF>\r\n"
 
-Allow the user to name the device in case several are connected to the same
-machine, this can be used for discovery and fine control in a larger system.
+Get the system information: model, version, name, auto-on on startup.
 
 ### Name Set
 
@@ -46,6 +45,11 @@ machine, this can be used for discovery and fine control in a larger system.
 
 Set the name to what the user gave. The size is limited to 16 characters and
 they must be printable characters.
+
+### Calibration Values
+
+* Send: "CALIBRATION"
+* Receive: detailed on calibration, mostly useful to debug and comparison of units
 
 ### Voltage Capabilities Query
 

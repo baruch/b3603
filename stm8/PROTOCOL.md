@@ -34,9 +34,24 @@ to use the same controller board and then the model returned may be different.
 ### System Configuration Query
 
 * Send: "SYSTEM"
-* Receive: "SYSTEM:\r\nMODEL: <model>\r\nVERSION: <version>\r\nNAME: <name>\r\nONSTARTUP: <ON/OFF>\r\n"
+* Receive: "SYSTEM:\r\nMODEL: <model>\r\nVERSION: <version>\r\nNAME: <name>\r\nONSTARTUP: <ON/OFF>\r\nAUTOCOMMIT: <YES/NO>\r\n"
 
-Get the system information: model, version, name, auto-on on startup.
+Get the system information: model, version, name, auto-on on startup and auto commit.
+
+### Commit configuration
+
+* Send: "COMMIT"
+* Receive: "COMMIT: DONE\r\n"
+
+If auto commit is off this command will change the operating parameters according to the changes done since the last commit.
+If auto commit is on, this command is not going to change anything.
+
+### Auto-commit Set
+
+* Send: "AUTOCOMMIT <YES/NO>"
+* Receive: "AUTOMMIT: YES" or "AUTOCOMMIT: NO"
+
+Set the auto commit setting.
 
 ### Name Set
 

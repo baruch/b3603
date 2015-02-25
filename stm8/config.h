@@ -22,6 +22,7 @@ typedef struct {
 typedef struct {
 	uint8_t name[17];
 	uint8_t default_on;
+	uint8_t autocommit;
 
 	calibrate_t vin_adc;
 	calibrate_t vout_adc;

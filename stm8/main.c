@@ -80,8 +80,11 @@ void set_output(uint8_t *s)
 		uart_write_str(s);
 		uart_write_str("\"\r\n");
 	}
-	output_commit(&cfg_output, &cfg_system);
-	output_check_state(&cfg_output, state_constant_current);
+
+	if (cfg_system.autocommit) {
+		output_commit(&cfg_output, &cfg_system);
+		output_check_state(&cfg_output, state_constant_current);
+	}
 }
 
 uint16_t parse_fixed_point(uint8_t *s)
@@ -155,7 +158,9 @@ void set_voltage(uint8_t *s)
 	uart_write_fixed_point(val);
 	uart_write_str("\r\n");
 	cfg_output.vset = val;
-	output_commit(&cfg_output, &cfg_system);
+
+	if (cfg_system.autocommit)
+		output_commit(&cfg_output, &cfg_system);
 }
 
 void set_current(uint8_t *s)
@@ -179,7 +184,24 @@ void set_current(uint8_t *s)
 	uart_write_fixed_point(val);
 	uart_write_str("\r\n");
 	cfg_output.cset = val;
-	output_commit(&cfg_output, &cfg_system);
+
+	if (cfg_system.autocommit)
+		output_commit(&cfg_output, &cfg_system);
+}
+
+void set_autocommit(uint8_t *s)
+{
+	if (strcmp(s, "1") == 0 || strcmp(s, "YES") == 0) {
+		cfg_system.autocommit = 1;
+		uart_write_str("AUTOCOMMIT: YES\r\n");
+	} else if (strcmp(s, "0") == 0 || strcmp(s, "NO") == 0) {
+		cfg_system.autocommit = 0;
+		uart_write_str("AUTOCOMMIT: NO\r\n");
+	} else {
+		uart_write_str("UNKNOWN AUTOCOMMIT ARG: ");
+		uart_write_str(s);
+		uart_write_str("\r\n");
+	}
 }
 
 void process_input()
@@ -199,6 +221,9 @@ void process_input()
 		uart_write_str("\r\n");
 		uart_write_str("ONSTARTUP: ");
 		uart_write_str(cfg_system.default_on ? "ON" : "OFF");
+		uart_write_str("\r\n");
+		uart_write_str("AUTOCOMMIT: ");
+		uart_write_str(cfg_system.autocommit ? "YES" : "NO");
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "CALIBRATION") == 0) {
 		uart_write_str("CALIBRATE VIN ADC: ");
@@ -284,6 +309,9 @@ void process_input()
 		uart_write_str("\r\nCONSTANT: ");
 		uart_write_str(state_constant_current ? "CURRENT" : "VOLTAGE");
 		uart_write_str("\r\n");
+	} else if (strcmp(uart_read_buf, "COMMIT") == 0) {
+		output_commit(&cfg_output, &cfg_system);
+		output_check_state(&cfg_output, state_constant_current);
 #if DEBUG
 	} else if (strcmp(uart_read_buf, "STUCK") == 0) {
 		// Allows debugging of the IWDG feature
@@ -313,6 +341,8 @@ void process_input()
 				set_voltage(uart_read_buf + idx + 1);
 			} else if (strcmp(uart_read_buf, "CURRENT") == 0) {
 				set_current(uart_read_buf + idx + 1);
+			} else if (strcmp(uart_read_buf, "AUTOCOMMIT") == 0) {
+				set_autocommit(uart_read_buf + idx + 1);
 			} else {
 				uart_write_str("UNKNOWN COMMAND!\r\n");
 			}
@@ -397,6 +427,7 @@ void config_load(void)
 {
 	strcpy(cfg_system.name, "Unnamed");
 	cfg_system.default_on = 0;
+	cfg_system.autocommit = 1;
 
 	cfg_output.output = 0;
 	cfg_output.vset = 5<<10; // 5V

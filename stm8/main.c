@@ -8,6 +8,7 @@
 #include "display.h"
 #include "fixedpoint.h"
 #include "uart.h"
+#include "eeprom.h"
 
 #define PWM_VAL 0x2000
 #define PWM_HIGH (PWM_VAL >> 8)
@@ -667,15 +668,23 @@ int main()
 	if (cfg_default)
 		cfg_output = 1;
 
-	iwatchdog_init();
-
-	control_outputs();
-
 	uart_write_str("\r\nB3606 starting: Version " FW_VERSION "\r\n");
 
 	if ((OPT2 & 1) == 0) {
-		uart_write_str("OPT1 bit AFR0 is not properly set! Output control will not work!\r\n");
+		for (i = 0; i < 10000; i++) {
+			uart_write_from_buf();
+		}
+		if (eeprom_set_afr0()) {
+			uart_write_str("AFR0 set, reseting the unit\r\n");
+			iwatchdog_init();
+			while (1); // Force a reset in a few msec
+		}
+		else
+			uart_write_str("AFR0 not set and programming failed!\r\n");
 	}
+
+	iwatchdog_init();
+	control_outputs();
 
 	do {
 		iwatchdog_tick();

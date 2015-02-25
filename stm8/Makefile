@@ -1,4 +1,4 @@
-SRC=main.c display.c uart.c
+SRC=main.c display.c uart.c eeprom.c
 OBJ=$(SRC:.c=.rel)
 SDCC=sdcc -lstm8 -mstm8 --opt-code-size --std-c99
 

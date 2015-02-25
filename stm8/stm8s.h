@@ -231,6 +231,7 @@
 /* ---------------- CPU/SWIM registers ----------------*/
 #define CFG_GCR *(unsigned char*)0x7F60
 #define SWIM_CSR *(unsigned char*)0x7F80
+#define RST_SR *(unsigned char*)0x50B3
 
 /* IWDG */
 #define IWDG_KR *(unsigned char *)0x50E0
@@ -249,3 +250,36 @@
 #define NOPT4 *(unsigned char *)0x4808
 #define OPT5 *(unsigned char *)0x4809
 #define NOPT5 *(unsigned char *)0x480A
+
+/* Flash */
+#define FLASH_CR1 *(unsigned char *)0x505A
+#define FLASH_CR2 *(unsigned char *)0x505B
+#define FLASH_NCR2 *(unsigned char *)0x505C
+#define FLASH_FPR *(unsigned char *)0x505D
+#define FLASH_NFPR *(unsigned char *)0x505E
+#define FLASH_IAPSR *(unsigned char *)0x505F
+#define FLASH_PUKR *(unsigned char *)0x5062
+#define FLASH_DUKR *(unsigned char *)0x5064
+
+#define FLASH_CR1_HALT (1<<3)
+#define FLASH_CR1_AHALT (1<<2)
+#define FLASH_CR1_IE (1<<1)
+#define FLASH_CR1_FIX (1<<0)
+
+#define FLASH_CR2_OPT (1<<7)
+#define FLASH_CR2_WPRG (1<<6)
+#define FLASH_CR2_ERASE (1<<5)
+#define FLASH_CR2_FPRG (1<<4)
+#define FLASH_CR2_PRG (1<<0)
+
+#define FLASH_NCR2_NOPT (1<<7)
+#define FLASH_NCR2_NWPRG (1<<6)
+#define FLASH_NCR2_NERASE (1<<5)
+#define FLASH_NCR2_NFPRG (1<<4)
+#define FLASH_NCR2_NPRG (1<<0)
+
+#define FLASH_IAPSR_HVOFF (1<<6)
+#define FLASH_IAPSR_DUL (1<<3)
+#define FLASH_IAPSR_EOP (1<<2)
+#define FLASH_IAPSR_PUL (1<<1)
+#define FLASH_IAPSR_WR_PG_DIS (1<<0)

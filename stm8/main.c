@@ -383,6 +383,10 @@ void config_load(void)
 	cfg_system.cout_adc.b = (2<<10)/10;
 
 	state_pc3 = 1;
+
+	if (cfg_system.default_on)
+		cfg_output.output = 1;
+
 }
 
 uint16_t adc_to_volt(uint16_t adc, calibrate_t *cal)
@@ -509,9 +513,6 @@ int main()
 	adc_init();
 
 	config_load();
-
-	if (cfg_system.default_on)
-		cfg_output.output = 1;
 
 	uart_write_str("\r\nB3606 starting: Version " FW_VERSION "\r\n");
 

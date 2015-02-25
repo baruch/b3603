@@ -20,12 +20,6 @@ const uint16_t cap_cmin = (1<<10) / 1000; // 1 mA
 const uint16_t cap_cmax = 3<<10; // 3 A
 const uint16_t cap_cstep = (1<<10) / 1000; // 1 mA
 
-uint16_t cal_vin;
-uint16_t cal_vout_a;
-uint16_t cal_vout_b;
-uint16_t cal_cout_a;
-uint16_t cal_cout_b;
-
 cfg_system_t cfg_system;
 cfg_output_t cfg_output;
 
@@ -379,27 +373,34 @@ void config_load(void)
 	cfg_output.vshutdown = 0;
 	cfg_output.cshutdown = 0;
 
-	cal_vin = 16 << 10;
+	cfg_system.vin_adc.a = 16 << 10;
+	cfg_system.vin_adc.b = 0;
 
-	cal_vout_a = 14027; // 1/0.073 << 10
-	cal_vout_b = 462; // (452<<10) / 1000; giving constant here since it can overflow in uint16_t
+	cfg_system.vout_adc.a = 14027; // 1/0.073 << 10
+	cfg_system.vout_adc.b = 462; // (452<<10) / 1000; giving constant here since it can overflow in uint16_t
 
-	cal_cout_a = 1280; //(125<<10)/100; giving constant here since it can overflow in uint16_t
-	cal_cout_b = (2<<10)/10;
+	cfg_system.cout_adc.a = 1280; //(125<<10)/100; giving constant here since it can overflow in uint16_t
+	cfg_system.cout_adc.b = (2<<10)/10;
 
 	state_pc3 = 1;
 }
 
-uint16_t adc_to_volt(uint16_t adc, uint16_t calibrated_factor)
+uint16_t adc_to_volt(uint16_t adc, calibrate_t *cal)
 {
-	uint32_t tmp = adc;
+	uint32_t tmp;
+	uint16_t tmp16;
 
-	tmp *= calibrated_factor;
+	tmp = adc;
+	tmp *= cal->a;
 	tmp *= 33;
 	tmp /= 10;
 	tmp >>= 10;
 
-	return tmp;
+	tmp16 = tmp;
+	if (tmp16 > cal->b)
+		tmp16 -= cal->b;
+
+	return tmp16;
 }
 
 void read_state(void)
@@ -433,27 +434,19 @@ void read_state(void)
 			case 2:
 				state_cout_raw = val;
 				// Calculation: val * cal_cout_a * 3.3 / 1024 - cal_cout_b
-				state_cout = adc_to_volt(val, cal_cout_a);
-				if (state_cout <= cal_cout_b)
-					state_cout = 0;
-				else
-					state_cout -= cal_cout_b;
+				state_cout = adc_to_volt(val, &cfg_system.cout_adc);
 				ch = 3;
 				break;
 			case 3:
 				state_vout_raw = val;
 				// Calculation: val * cal_vout_a * 3.3 / 1024 - cal_vout_b
-				state_vout = adc_to_volt(val, cal_vout_a);
-				if (state_vout <= cal_vout_b)
-					state_vout = 0;
-				else
-					state_vout -= cal_vout_b;
+				state_vout = adc_to_volt(val, &cfg_system.vout_adc);
 				ch = 4;
 				break;
 			case 4:
 				state_vin_raw = val;
 				// Calculation: val * cal_vin * 3.3 / 1024
-				state_vin = adc_to_volt(val, cal_vin);
+				state_vin = adc_to_volt(val, &cfg_system.vin_adc);
 				ch = 2;
 				{
 					uint8_t ch1;

@@ -475,6 +475,29 @@ void read_state(void)
 	}
 }
 
+void flush_uart_writes(void)
+{
+	for (i = 0; i < 10000; i++) {
+		uart_write_from_buf();
+	}
+}
+
+void ensure_afr0_set(void)
+{
+	if ((OPT2 & 1) == 0) {
+		flush_uart_writes();
+		if (eeprom_set_afr0()) {
+			uart_write_str("AFR0 set, reseting the unit\r\n");
+			flush_uart_writes();
+			iwatchdog_init();
+			while (1); // Force a reset in a few msec
+		}
+		else {
+			uart_write_str("AFR0 not set and programming failed!\r\n");
+		}
+	}
+}
+
 int main()
 {
 	unsigned long i = 0;
@@ -492,18 +515,7 @@ int main()
 
 	uart_write_str("\r\nB3606 starting: Version " FW_VERSION "\r\n");
 
-	if ((OPT2 & 1) == 0) {
-		for (i = 0; i < 10000; i++) {
-			uart_write_from_buf();
-		}
-		if (eeprom_set_afr0()) {
-			uart_write_str("AFR0 set, reseting the unit\r\n");
-			iwatchdog_init();
-			while (1); // Force a reset in a few msec
-		}
-		else
-			uart_write_str("AFR0 not set and programming failed!\r\n");
-	}
+	ensure_afr0_set();
 
 	iwatchdog_init();
 	output_commit(&cfg_output);

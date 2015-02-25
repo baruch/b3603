@@ -6,3 +6,4 @@
 *.lst
 *.asm
 *.sym
+.*.d

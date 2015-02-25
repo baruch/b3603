@@ -1,16 +1,27 @@
 SRC=main.c display.c uart.c eeprom.c outputs.c
+CFLAGS= -lstm8 -mstm8 --opt-code-size --std-c99
 OBJ=$(SRC:.c=.rel)
-SDCC=sdcc -lstm8 -mstm8 --opt-code-size --std-c99
+DEP=$(SRC:%.c=.%.d)
+SDCC=sdcc $(CFLAGS)
 
 all: b3603.ihx
 
-b3603.ihx: $(OBJ)
-	$(SDCC) --out-fmt-ihx --code-size 8192 -o $@ $^
+-include $(DEP)
 
-%.rel: %.c
-	$(SDCC) -c -o $@ $<
+b3603.ihx: $(OBJ)
+	@echo LINK $@
+	@$(SDCC) --out-fmt-ihx --code-size 8192 -o $@ $^
+
+.%.d: %.c
+	@echo DEP $<
+	@$(SDCC) -M $^ > $^.tmp.d
+	@mv $^.tmp.d $@
+
+%.rel: %.c .%.d
+	@echo CC $<
+	@$(SDCC) -c -o $@ $<
 
 clean:
-	-rm -f *.rel *.ihx *.lk *.map *.rst *.lst *.asm *.sym
+	-rm -f *.rel *.ihx *.lk *.map *.rst *.lst *.asm *.sym .*.d
 
 .PHONY: all clean

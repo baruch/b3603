@@ -32,4 +32,7 @@ typedef struct {
 	calibrate_t cout_pwm;
 } cfg_system_t;
 
+void config_load_system(cfg_system_t *sys);
+void config_load_output(cfg_output_t *cfg);
+
 #endif

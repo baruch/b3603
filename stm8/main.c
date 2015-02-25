@@ -425,36 +425,13 @@ uint8_t adc_ready()
 
 void config_load(void)
 {
-	strcpy(cfg_system.name, "Unnamed");
-	cfg_system.default_on = 0;
-	cfg_system.autocommit = 1;
-
-	cfg_output.output = 0;
-	cfg_output.vset = 5<<10; // 5V
-	cfg_output.cset = (1<<10) / 2; // 0.5A
-	cfg_output.vshutdown = 0;
-	cfg_output.cshutdown = 0;
-
-	cfg_system.vin_adc.a = 16 << 10;
-	cfg_system.vin_adc.b = 0;
-
-	cfg_system.vout_adc.a = 14027; // 1/0.073 << 10
-	cfg_system.vout_adc.b = 462; // (452<<10) / 1000; giving constant here since it can overflow in uint16_t
-
-	cfg_system.cout_adc.a = 1280; //(125<<10)/100; giving constant here since it can overflow in uint16_t
-	cfg_system.cout_adc.b = (2<<10)/10;
-
-	cfg_system.vout_pwm.a = 75; // 0.073 = (73<<10)/1000
-	cfg_system.vout_pwm.b = 34; // 0.033 = (33<<10)/1000
-
-	cfg_system.cout_pwm.a = 819; // 0.8 = (8<<10)/10
-	cfg_system.cout_pwm.b = 164; // 0.160 = (16<<10)/100
-
-	state_pc3 = 1;
+	config_load_system(&cfg_system);
+	config_load_output(&cfg_output);
 
 	if (cfg_system.default_on)
 		cfg_output.output = 1;
 
+	state_pc3 = 1;
 }
 
 uint16_t adc_to_volt(uint16_t adc, calibrate_t *cal)

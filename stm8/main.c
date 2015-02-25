@@ -80,7 +80,7 @@ void set_output(uint8_t *s)
 		uart_write_str(s);
 		uart_write_str("\"\r\n");
 	}
-	output_commit(&cfg_output);
+	output_commit(&cfg_output, &cfg_system);
 	output_check_state(&cfg_output, state_constant_current);
 }
 
@@ -155,7 +155,7 @@ void set_voltage(uint8_t *s)
 	uart_write_fixed_point(val);
 	uart_write_str("\r\n");
 	cfg_output.vset = val;
-	output_commit(&cfg_output);
+	output_commit(&cfg_output, &cfg_system);
 }
 
 void set_current(uint8_t *s)
@@ -179,7 +179,7 @@ void set_current(uint8_t *s)
 	uart_write_fixed_point(val);
 	uart_write_str("\r\n");
 	cfg_output.cset = val;
-	output_commit(&cfg_output);
+	output_commit(&cfg_output, &cfg_system);
 }
 
 void process_input()
@@ -382,6 +382,12 @@ void config_load(void)
 	cfg_system.cout_adc.a = 1280; //(125<<10)/100; giving constant here since it can overflow in uint16_t
 	cfg_system.cout_adc.b = (2<<10)/10;
 
+	cfg_system.vout_pwm.a = 75; // 0.073 = (73<<10)/1000
+	cfg_system.vout_pwm.b = 34; // 0.033 = (33<<10)/1000
+
+	cfg_system.cout_pwm.a = 819; // 0.8 = (8<<10)/10
+	cfg_system.cout_pwm.b = 164; // 0.160 = (16<<10)/100
+
 	state_pc3 = 1;
 
 	if (cfg_system.default_on)
@@ -481,6 +487,7 @@ void read_state(void)
 
 void flush_uart_writes(void)
 {
+	int i;
 	for (i = 0; i < 10000; i++) {
 		uart_write_from_buf();
 	}
@@ -519,7 +526,7 @@ int main()
 	ensure_afr0_set();
 
 	iwatchdog_init();
-	output_commit(&cfg_output);
+	output_commit(&cfg_output, &cfg_system);
 
 	do {
 		iwatchdog_tick();

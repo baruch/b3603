@@ -26,6 +26,9 @@ typedef struct {
 	calibrate_t vin_adc;
 	calibrate_t vout_adc;
 	calibrate_t cout_adc;
+
+	calibrate_t vout_pwm;
+	calibrate_t cout_pwm;
 } cfg_system_t;
 
 #endif

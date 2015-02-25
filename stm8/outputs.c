@@ -59,68 +59,54 @@ uint8_t output_state(void)
 	return (PB_ODR & (1<<4)) ? 0 : 1;
 }
 
-void control_voltage(cfg_output_t *cfg)
+uint16_t pwm_from_set(uint16_t set, calibrate_t *cal)
 {
 	uint32_t tmp;
-	uint16_t ctr;
 
-	// tmp = cfg_vset * 0.073
-	tmp = cfg->vset;
-	tmp *= 74752; // (73<<10)
-	tmp /= 1000;
+	// x*a
+	tmp = set;
+	tmp *= cal->a;
 	tmp >>= 10;
 
-	// tmp += 0.033
-	tmp += 34; //(33<<10)/1000;
+	// x*a + b
+	tmp += cal->b;
 
-	// Here we have in tmp the Vout control value
-	// Now we want to calculate the PWM counter
-	// (tmp/3.3) * PWM_VAL
-
-	// tmp *= PWM_VAL
+	// (x*a + b) * PWM_VAL
 	tmp *= PWM_VAL;
-	tmp >>= 10; // Now we strip the fraction from the number
 
-	// tmp /= 3.3v => tmp *= (1/3.3v) 
-	tmp *= 310; //(303<<10)/1000
+	// round((x*a + b) * PWM_VAL)
 	tmp >>= 10;
 
-	ctr = tmp;
+	// (x*a + b)/3.3v * PWM_VAL
+	tmp *= 310; // (1/3.3v) = (303<<10)/1000
+	tmp >>= 10;
+
+	return (uint16_t)tmp;
+}
+
+void control_voltage(cfg_output_t *cfg, cfg_system_t *sys)
+{
+	uint16_t ctr = pwm_from_set(cfg->vset, &sys->vout_pwm);
 
 	TIM2_CCR1H = ctr >> 8;
 	TIM2_CCR1L = ctr & 0xFF;
 	TIM2_CR1 |= 0x01; // Enable timer
 }
 
-void control_current(cfg_output_t *cfg)
+void control_current(cfg_output_t *cfg, cfg_system_t *sys)
 {
-	uint32_t tmp;
-	uint16_t ctr;
-
-	tmp = cfg->cset;
-	tmp *= 819; //(8<<10) / 10;
-	tmp >>= 10;
-
-	tmp += 164; //(16<<10) / 100;
-
-	tmp *= PWM_VAL;
-	tmp >>= 10;
-
-	tmp *= 310; // 1/3.3
-	tmp >>= 10;
-
-	ctr = tmp;
+	uint16_t ctr = pwm_from_set(cfg->cset, &sys->cout_pwm);
 
 	TIM1_CCR1H = ctr >> 8;
 	TIM1_CCR1L = ctr & 0xFF;
 	TIM1_CR1 |= 0x01; // Enable timer
 }
 
-void output_commit(cfg_output_t *cfg)
+void output_commit(cfg_output_t *cfg, cfg_system_t *sys)
 {
 	if (cfg->output) {
-		control_voltage(cfg);
-		control_current(cfg);
+		control_voltage(cfg, sys);
+		control_current(cfg, sys);
 	}
 
 	if (cfg->output != output_state()) {

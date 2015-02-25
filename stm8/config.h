@@ -11,4 +11,9 @@ typedef struct {
 	uint16_t cshutdown;
 } cfg_output_t;
 
+typedef struct {
+	uint8_t name[17];
+	uint8_t default_on;
+} cfg_system_t;
+
 #endif

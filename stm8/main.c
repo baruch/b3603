@@ -26,8 +26,7 @@ uint16_t cal_vout_b;
 uint16_t cal_cout_a;
 uint16_t cal_cout_b;
 
-uint8_t cfg_name[17];
-uint8_t cfg_default;
+cfg_system_t cfg_system;
 cfg_output_t cfg_output;
 
 uint16_t state_vin_raw;
@@ -59,11 +58,11 @@ void set_name(uint8_t *name)
 			name[idx] = '.'; // Eliminate non-printable chars
 	}
 
-	strncpy(cfg_name, name, sizeof(cfg_name));
-	cfg_name[sizeof(cfg_name)-1] = 0;
+	strncpy(cfg_system.name, name, sizeof(cfg_system.name));
+	cfg_system.name[sizeof(cfg_system.name)-1] = 0;
 
 	uart_write_str("SNAME: ");
-	uart_write_str(cfg_name);
+	uart_write_str(cfg_system.name);
 	uart_write_str("\r\n");
 }
 
@@ -200,7 +199,7 @@ void process_input()
 		uart_write_str("VERSION: " FW_VERSION "\r\n");
 	} else if (strcmp(uart_read_buf, "NAME") == 0) {
 		uart_write_str("NAME: ");
-		uart_write_str(cfg_name);
+		uart_write_str(cfg_system.name);
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "VLIST") == 0) {
 		uart_write_str("VLIST:\r\nVOLTAGE MIN: ");
@@ -371,8 +370,8 @@ uint8_t adc_ready()
 
 void config_load(void)
 {
-	strcpy(cfg_name, "Unnamed");
-	cfg_default = 0;
+	strcpy(cfg_system.name, "Unnamed");
+	cfg_system.default_on = 0;
 
 	cfg_output.output = 0;
 	cfg_output.vset = 5<<10; // 5V
@@ -495,7 +494,7 @@ int main()
 
 	config_load();
 
-	if (cfg_default)
+	if (cfg_system.default_on)
 		cfg_output.output = 1;
 
 	uart_write_str("\r\nB3606 starting: Version " FW_VERSION "\r\n");

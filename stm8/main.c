@@ -9,10 +9,8 @@
 #include "fixedpoint.h"
 #include "uart.h"
 #include "eeprom.h"
-
-#define PWM_VAL 0x2000
-#define PWM_HIGH (PWM_VAL >> 8)
-#define PWM_LOW (PWM_VAL & 0xFF)
+#include "outputs.h"
+#include "config.h"
 
 const uint16_t cap_vmin = (1<<10) / 100; // 10 mV
 const uint16_t cap_vmax = 35<<10; // 35 V
@@ -30,11 +28,7 @@ uint16_t cal_cout_b;
 
 uint8_t cfg_name[17];
 uint8_t cfg_default;
-uint8_t cfg_output;
-uint16_t cfg_vset;
-uint16_t cfg_cset;
-uint16_t cfg_vshutdown;
-uint16_t cfg_cshutdown;
+cfg_output_t cfg_output;
 
 uint16_t state_vin_raw;
 uint16_t state_vout_raw;
@@ -44,9 +38,6 @@ uint16_t state_vout;
 uint16_t state_cout;
 uint8_t state_constant_current; // If false, we are in constant voltage
 uint8_t state_pc3;
-
-uint16_t out_voltage;
-uint16_t out_current;
 
 inline iwatchdog_init(void)
 {
@@ -86,16 +77,18 @@ void set_output(uint8_t *s)
 	}
 
 	if (s[0] == '0') {
-		cfg_output = 0;
+		cfg_output.output = 0;
 		uart_write_str("OUTPUT: OFF\r\n");
 	} else if (s[0] == '1') {
-		cfg_output = 1;
+		cfg_output.output = 1;
 		uart_write_str("OUTPUT: ON\r\n");
 	} else {
 //		uart_write_str("OUTPUT takes either 0 for OFF or 1 for ON, received: \"");
 		uart_write_str(s);
 		uart_write_str("\"\r\n");
 	}
+	output_commit(&cfg_output);
+	output_check_state(&cfg_output, state_constant_current);
 }
 
 uint16_t parse_fixed_point(uint8_t *s)
@@ -168,7 +161,8 @@ void set_voltage(uint8_t *s)
 	uart_write_str("VOLTAGE: SET ");
 	uart_write_fixed_point(val);
 	uart_write_str("\r\n");
-	cfg_vset = val;
+	cfg_output.vset = val;
+	output_commit(&cfg_output);
 }
 
 void set_current(uint8_t *s)
@@ -191,7 +185,8 @@ void set_current(uint8_t *s)
 	uart_write_str("CURRENT: SET ");
 	uart_write_fixed_point(val);
 	uart_write_str("\r\n");
-	cfg_cset = val;
+	cfg_output.cset = val;
+	output_commit(&cfg_output);
 }
 
 void process_input()
@@ -225,37 +220,37 @@ void process_input()
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "CONFIG") == 0) {
 		uart_write_str("CONFIG:\r\nOUTPUT: ");
-		uart_write_str(cfg_output ? "ON" : "OFF");
+		uart_write_str(cfg_output.output ? "ON" : "OFF");
 		uart_write_str("\r\nVOLTAGE SET: ");
-		uart_write_fixed_point(cfg_vset);
+		uart_write_fixed_point(cfg_output.vset);
 		uart_write_str("\r\nCURRENT SET: ");
-		uart_write_fixed_point(cfg_cset);
+		uart_write_fixed_point(cfg_output.cset);
 		uart_write_str("\r\nVOLTAGE SHUTDOWN: ");
-		if (cfg_vshutdown == 0)
+		if (cfg_output.vshutdown == 0)
 			uart_write_str("DISABLED");
 		else
-			uart_write_fixed_point(cfg_vshutdown);
+			uart_write_fixed_point(cfg_output.vshutdown);
 		uart_write_str("\r\nCURRENT SHUTDOWN: ");
-		if (cfg_cshutdown == 0)
+		if (cfg_output.cshutdown == 0)
 			uart_write_str("DISABLED");
 		else
-			uart_write_fixed_point(cfg_cshutdown);
+			uart_write_fixed_point(cfg_output.cshutdown);
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "STATUS") == 0) {
 		uart_write_str("STATUS:\r\nOUTPUT: ");
-		uart_write_str(cfg_output ? "ON" : "OFF");
+		uart_write_str(cfg_output.output ? "ON" : "OFF");
 		uart_write_str("\r\nVOLTAGE IN: ");
 		uart_write_fixed_point(state_vin);
 		uart_write_str("\r\nVOLTAGE OUT: ");
-		uart_write_fixed_point(cfg_output ? state_vout : 0);
+		uart_write_fixed_point(cfg_output.output ? state_vout : 0);
 		uart_write_str("\r\nCURRENT OUT: ");
-		uart_write_fixed_point(cfg_output ? state_cout : 0);
+		uart_write_fixed_point(cfg_output.output ? state_cout : 0);
 		uart_write_str("\r\nCONSTANT: ");
 		uart_write_str(state_constant_current ? "CURRENT" : "VOLTAGE");
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "RSTATUS") == 0) {
 		uart_write_str("RSTATUS:\r\nOUTPUT: ");
-		uart_write_str(cfg_output ? "ON" : "OFF");
+		uart_write_str(cfg_output.output ? "ON" : "OFF");
 		uart_write_str("\r\nVOLTAGE IN ADC: ");
 		uart_write_int(state_vin_raw);
 		uart_write_str("\r\nVOLTAGE OUT ADC: ");
@@ -347,37 +342,6 @@ void pinout_init()
 	PD_CR2 = (1<<4);
 }
 
-void pwm_init(void)
-{
-	/* Timer 1 Channel 1 for Iout control */
-	TIM1_CR1 = 0x10; // Down direction
-	TIM1_ARRH = PWM_HIGH; // Reload counter = 16384
-	TIM1_ARRL = PWM_LOW;
-	TIM1_PSCRH = 0; // Prescaler 0 means division by 1
-	TIM1_PSCRL = 0;
-	TIM1_RCR = 0; // Continuous
-
-	TIM1_CCMR1 = 0x70;    //  Set up to use PWM mode 2.
-	TIM1_CCER1 = 0x03;    //  Output is enabled for channel 1, active low
-	TIM1_CCR1H = 0x00;      //  Start with the PWM signal off
-	TIM1_CCR1L = 0x00;
-
-	TIM1_BKR = 0x80;       //  Enable the main output.
-
-	/* Timer 2 Channel 1 for Vout control */
-	TIM2_ARRH = PWM_HIGH; // Reload counter = 16384
-	TIM2_ARRL = PWM_LOW;
-	TIM2_PSCR = 0; // Prescaler 0 means division by 1
-	TIM2_CR1 = 0x00;
-
-	TIM2_CCMR1 = 0x70;    //  Set up to use PWM mode 2.
-	TIM2_CCER1 = 0x03;    //  Output is enabled for channel 1, active low
-	TIM2_CCR1H = 0x00;      //  Start with the PWM signal off
-	TIM2_CCR1L = 0x00;
-
-	// Timers are still off, will be turned on when output is turned on
-}
-
 void adc_init(void)
 {
 	ADC1_CR1 = 0x70; // Power down, clock/18
@@ -409,11 +373,12 @@ void config_load(void)
 {
 	strcpy(cfg_name, "Unnamed");
 	cfg_default = 0;
-	cfg_output = 0;
-	cfg_vset = 5<<10; // 5V
-	cfg_cset = (1<<10) / 2; // 0.5A
-	cfg_vshutdown = 0;
-	cfg_cshutdown = 0;
+
+	cfg_output.output = 0;
+	cfg_output.vset = 5<<10; // 5V
+	cfg_output.cset = (1<<10) / 2; // 0.5A
+	cfg_output.vshutdown = 0;
+	cfg_output.cshutdown = 0;
 
 	cal_vin = 16 << 10;
 
@@ -424,23 +389,6 @@ void config_load(void)
 	cal_cout_b = (2<<10)/10;
 
 	state_pc3 = 1;
-}
-
-void cvcc_led_cc(void)
-{
-	PA_ODR |= (1<<3);
-	PA_DDR |= (1<<3);
-}
-
-void cvcc_led_cv(void)
-{
-	PA_ODR &= ~(1<<3);
-	PA_DDR |= (1<<3);
-}
-
-void cvcc_led_off(void)
-{
-	PA_DDR &= ~(1<<3);
 }
 
 uint16_t adc_to_volt(uint16_t adc, uint16_t calibrated_factor)
@@ -459,7 +407,6 @@ void read_state(void)
 {
 	uint8_t tmp;
 
-	state_constant_current = (PB_IDR & (1<<5)) ? 1 : 0;
 	tmp = (PC_IDR & (1<<3)) ? 1 : 0;
 	if (state_pc3 != tmp) {
 		uart_write_str("PC3 is now ");
@@ -471,12 +418,7 @@ void read_state(void)
 	tmp = (PB_IDR & (1<<5)) ? 1 : 0;
 	if (state_constant_current != tmp) {
 		state_constant_current = tmp;
-		if (cfg_output) {
-			if (state_constant_current)
-				cvcc_led_cc();
-			else
-				cvcc_led_cv();
-		}
+		output_check_state(&cfg_output, state_constant_current);
 	}
 
 	if ((ADC1_CSR & 0x0F) == 0) {
@@ -541,118 +483,6 @@ void read_state(void)
 	}
 }
 
-uint8_t output_state(void)
-{
-	return (PB_ODR & (1<<4)) ? 0 : 1;
-}
-
-void control_voltage(void)
-{
-	uint32_t tmp;
-	uint16_t ctr;
-
-	// tmp = cfg_vset * 0.073
-	tmp = cfg_vset;
-	tmp *= 74752; // (73<<10)
-	tmp /= 1000;
-	tmp >>= 10;
-
-	// tmp += 0.033
-	tmp += 34; //(33<<10)/1000;
-
-	// Here we have in tmp the Vout control value
-	// Now we want to calculate the PWM counter
-	// (tmp/3.3) * PWM_VAL
-
-	// tmp *= PWM_VAL
-	tmp *= PWM_VAL;
-	tmp >>= 10; // Now we strip the fraction from the number
-
-	// tmp /= 3.3v => tmp *= (1/3.3v) 
-	tmp *= 310; //(303<<10)/1000
-	tmp >>= 10;
-
-	ctr = tmp;
-
-	TIM2_CCR1H = ctr >> 8;
-	TIM2_CCR1L = ctr & 0xFF;
-	TIM2_CR1 |= 0x01; // Enable timer
-
-	out_voltage = cfg_vset;
-}
-
-void control_current(void)
-{
-	uint32_t tmp;
-	uint16_t ctr;
-
-	tmp = cfg_cset;
-	tmp *= 819; //(8<<10) / 10;
-	tmp >>= 10;
-
-	tmp += 164; //(16<<10) / 100;
-
-	tmp *= PWM_VAL;
-	tmp >>= 10;
-
-	tmp *= 310; // 1/3.3
-	tmp >>= 10;
-
-	ctr = tmp;
-
-	TIM1_CCR1H = ctr >> 8;
-	TIM1_CCR1L = ctr & 0xFF;
-	TIM1_CR1 |= 0x01; // Enable timer
-
-	out_current = cfg_cset;
-}
-
-void control_outputs(void)
-{
-	if (cfg_output) {
-		// Only tune the PWMs if we are outputing anything
-		if (out_voltage != cfg_vset) {
-			control_voltage();
-		}
-
-		if (out_current != cfg_cset) {
-			control_current();
-		}
-	}
-
-	if (cfg_output != output_state()) {
-		// Startup and shutdown orders need to be in reverse order
-		if (cfg_output) {
-			// We turned on the PWMs above already
-			PB_ODR &= ~(1<<4);
-
-			// Set the CV/CC to some value, it will get reset to actual on next polling cycle
-			state_constant_current = 0;
-			cvcc_led_cv();
-		} else {
-			// Set Output Enable OFF
-			PB_ODR |= (1<<4);
-
-			// Turn off PWM for Iout
-			TIM1_CCR1H = 0;
-			TIM1_CCR1L = 0;
-			TIM1_CR1 &= 0xFE; // Disable timer
-
-			// Turn off PWM for Vout
-			TIM2_CCR1H = 0;
-			TIM2_CCR1L = 0;
-			TIM2_CR1 &= 0xFE; // Disable timer
-
-			// Make sure we update the PWMs when we turn output on next time
-			out_voltage = 0;
-			out_current = 0;
-
-			// Turn off CV/CC led
-			cvcc_led_off();
-		}
-	}
-}
-
 int main()
 {
 	unsigned long i = 0;
@@ -666,7 +496,7 @@ int main()
 	config_load();
 
 	if (cfg_default)
-		cfg_output = 1;
+		cfg_output.output = 1;
 
 	uart_write_str("\r\nB3606 starting: Version " FW_VERSION "\r\n");
 
@@ -684,14 +514,13 @@ int main()
 	}
 
 	iwatchdog_init();
-	control_outputs();
+	output_commit(&cfg_output);
 
 	do {
 		iwatchdog_tick();
 		uart_write_from_buf();
 
 		read_state();
-		control_outputs();
 		display_refresh();
 
 		uart_read_to_buf();

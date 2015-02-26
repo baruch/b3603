@@ -1,3 +1,5 @@
+/* This file is merely a collection of facts and as such I don't claim any copyright on it. */
+
 /* GPIO */
 #define PA_ODR *(unsigned char*)0x5000
 #define PA_IDR *(unsigned char*)0x5001

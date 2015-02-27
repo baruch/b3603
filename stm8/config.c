@@ -33,17 +33,17 @@ void validate_system_config(cfg_system_t *sys)
 	}
 
 	if (sys->vin_adc.a == 0) {
-		sys->vin_adc.a = 16 << 10;
+		sys->vin_adc.a = 54067; // 16*3.3v = ((16 << 10) * (33<<10) / 10 ) >> 10
 		sys->vin_adc.b = 0;
 	}
 
 	if (sys->vout_adc.a == 0) {
-		sys->vout_adc.a = 14027; // 1/0.073 << 10
+		sys->vout_adc.a = 46290; // 3.3/0.073 << 10
 		sys->vout_adc.b = 462; // (452<<10) / 1000; giving constant here since it can overflow in uint16_t
 	}
 
 	if (sys->cout_adc.a == 0) {
-		sys->cout_adc.a = 1280; //(125<<10)/100; giving constant here since it can overflow in uint16_t
+		sys->cout_adc.a = 4223; // 3.3v * (125<<10)/100; giving constant here since it can overflow in uint16_t
 		sys->cout_adc.b = (2<<10)/10;
 	}
 

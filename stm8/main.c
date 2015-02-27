@@ -463,8 +463,6 @@ uint16_t adc_to_volt(uint16_t adc, calibrate_t *cal)
 
 	tmp = adc;
 	tmp *= cal->a;
-	tmp *= 33;
-	tmp /= 10;
 	tmp >>= 10;
 
 	tmp16 = tmp;

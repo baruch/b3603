@@ -395,7 +395,7 @@ void pinout_init()
 	// PB4 is Enable control, output
 	// PB5 is CV/CC sense, input
 	PB_ODR = (1<<4); // For safety we start with off-state
-	PB_DDR = (1<<4) | (1<<5);
+	PB_DDR = (1<<4);
 	PB_CR1 = (1<<4);
 	PB_CR2 = 0;
 

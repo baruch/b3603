@@ -28,6 +28,7 @@
 #include "uart.h"
 #include "eeprom.h"
 #include "outputs.h"
+#include "calibrate.h"
 #include "config.h"
 
 const uint16_t cap_vmin = (1<<10) / 100; // 10 mV
@@ -365,6 +366,10 @@ void process_input()
 				set_current(uart_read_buf + idx + 1);
 			} else if (strcmp(uart_read_buf, "AUTOCOMMIT") == 0) {
 				set_autocommit(uart_read_buf + idx + 1);
+			} else if (strcmp(uart_read_buf, "CALVIN1") == 0) {
+				calibrate_vin(1, parse_fixed_point(uart_read_buf+idx+1), state_vin_raw, &cfg_system.vin_adc);
+			} else if (strcmp(uart_read_buf, "CALVIN2") == 0) {
+				calibrate_vin(2, parse_fixed_point(uart_read_buf+idx+1), state_vin_raw, &cfg_system.vin_adc);
 			} else {
 				uart_write_str("UNKNOWN COMMAND!\r\n");
 			}

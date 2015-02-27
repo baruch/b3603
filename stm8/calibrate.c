@@ -36,9 +36,17 @@ void calibrate_vin(int point, uint16_t set_point, uint16_t adc_val, calibrate_t 
 		if (tmp1 > 65535)
 			uart_write_str("A OVERFLOW\r\n");
 
-		tmp2 = vin_points[0].val * tmp1;
+		tmp2 = vin_points[0].val;
+		tmp2 *= tmp1;
 		tmp2 >>= 10;
-		tmp2 = vin_points[0].set_point - tmp2;
+		while (tmp2 < vin_points[0].set_point)
+		{
+			tmp2 = vin_points[0].val;
+			tmp1++;
+			tmp2 *= tmp1;
+			tmp2 >>= 10;
+		}
+		tmp2 -= vin_points[0].set_point;
 
 		c->a = tmp1;
 		c->b = tmp2;

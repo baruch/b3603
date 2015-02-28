@@ -381,6 +381,10 @@ void process_input()
 				calibrate_vin(1, parse_fixed_point(uart_read_buf+idx+1), state_vin_raw, &cfg_system.vin_adc);
 			} else if (strcmp(uart_read_buf, "CALVIN2") == 0) {
 				calibrate_vin(2, parse_fixed_point(uart_read_buf+idx+1), state_vin_raw, &cfg_system.vin_adc);
+			} else if (strcmp(uart_read_buf, "CALVOUT1") == 0) {
+				calibrate_vout(1, parse_fixed_point(uart_read_buf+idx+1), state_vout_raw, &cfg_system.vout_adc);
+			} else if (strcmp(uart_read_buf, "CALVOUT2") == 0) {
+				calibrate_vout(2, parse_fixed_point(uart_read_buf+idx+1), state_vout_raw, &cfg_system.vout_adc);
 			} else {
 				uart_write_str("UNKNOWN COMMAND!\r\n");
 			}

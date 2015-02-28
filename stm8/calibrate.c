@@ -7,13 +7,42 @@ struct calibrate_points {
 };
 
 struct calibrate_points vin_points[2];
+struct calibrate_points vout_points[2];
 
-void calibrate_vin(int point, uint16_t set_point, uint16_t adc_val, calibrate_t *c)
+static void calibrate_calc(struct calibrate_points *points, calibrate_t *c)
+{
+	if (points[0].set_point && points[0].val && points[1].set_point && points[1].val) {
+		uint32_t tmp1;
+		uint32_t tmp2;
+		uint32_t tmp3;
+
+		tmp1 = (points[1].set_point - points[0].set_point);
+		tmp1 <<= 10;
+		tmp3 = points[1].val - points[0].val;
+		tmp1 /= tmp3;
+
+		tmp2 = points[0].val;
+		tmp2 *= tmp1;
+		tmp2 >>= 10;
+		while (tmp2 < points[0].set_point)
+		{
+			tmp2 = points[0].val;
+			tmp1++;
+			tmp2 *= tmp1;
+			tmp2 >>= 10;
+		}
+		tmp2 -= points[0].set_point;
+
+		c->a = tmp1;
+		c->b = tmp2;
+	}
+}
+
+static void calibrate_point(struct calibrate_points *points, int point, uint16_t set_point, uint16_t adc_val, calibrate_t *c)
 {
 	if (point < 1 && point > 2)
 		return;
 
-	uart_write_str("CALVIN");
 	uart_write_ch('0' + point);
 	uart_write_str(": VIN=");
 	uart_write_fixed_point(set_point);
@@ -21,34 +50,20 @@ void calibrate_vin(int point, uint16_t set_point, uint16_t adc_val, calibrate_t 
 	uart_write_int(adc_val);
 	uart_write_str("\r\n");
 
-	vin_points[point-1].set_point = set_point;
-	vin_points[point-1].val = adc_val;
+	points[point-1].set_point = set_point;
+	points[point-1].val = adc_val;
 
-	if (vin_points[0].set_point && vin_points[0].val && vin_points[1].set_point && vin_points[1].val) {
-		uint32_t tmp1;
-		uint32_t tmp2;
+	calibrate_calc(points, c);
+}
 
-		tmp1 = (vin_points[1].set_point - vin_points[0].set_point);
-		tmp1 <<= 10;
-		tmp2 = vin_points[1].val - vin_points[0].val;
-		tmp1 /= tmp2;
+void calibrate_vin(int point, uint16_t set_point, uint16_t adc_val, calibrate_t *c)
+{
+	uart_write_str("CALVIN");
+	calibrate_point(vin_points, point, set_point, adc_val, c);
+}
 
-		if (tmp1 > 65535)
-			uart_write_str("A OVERFLOW\r\n");
-
-		tmp2 = vin_points[0].val;
-		tmp2 *= tmp1;
-		tmp2 >>= 10;
-		while (tmp2 < vin_points[0].set_point)
-		{
-			tmp2 = vin_points[0].val;
-			tmp1++;
-			tmp2 *= tmp1;
-			tmp2 >>= 10;
-		}
-		tmp2 -= vin_points[0].set_point;
-
-		c->a = tmp1;
-		c->b = tmp2;
-	}
+void calibrate_vout(int point, uint16_t set_point, uint16_t adc_val, calibrate_t *c)
+{
+	uart_write_str("CALVOUT");
+	calibrate_point(vout_points, point, set_point, adc_val, c);
 }

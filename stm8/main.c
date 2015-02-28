@@ -62,6 +62,11 @@ inline iwatchdog_tick(void)
 	IWDG_KR = 0xAA; // Reset the counter
 }
 
+void commit_output()
+{
+	output_commit(&cfg_output, &cfg_system, state_constant_current);
+}
+
 void set_name(uint8_t *name)
 {
 	uint8_t idx;
@@ -101,8 +106,9 @@ void set_output(uint8_t *s)
 	}
 
 	if (cfg_system.autocommit) {
-		output_commit(&cfg_output, &cfg_system);
-		output_check_state(&cfg_output, state_constant_current);
+		commit_output();
+	} else {
+		uart_write_str("AUTOCOMMIT OFF: CHANGE PENDING ON COMMIT\r\n");
 	}
 }
 
@@ -178,8 +184,11 @@ void set_voltage(uint8_t *s)
 	uart_write_str("\r\n");
 	cfg_output.vset = val;
 
-	if (cfg_system.autocommit)
-		output_commit(&cfg_output, &cfg_system);
+	if (cfg_system.autocommit) {
+		commit_output();
+	} else {
+		uart_write_str("AUTOCOMMIT OFF: CHANGE PENDING ON COMMIT\r\n");
+	}
 }
 
 void set_current(uint8_t *s)
@@ -204,8 +213,11 @@ void set_current(uint8_t *s)
 	uart_write_str("\r\n");
 	cfg_output.cset = val;
 
-	if (cfg_system.autocommit)
-		output_commit(&cfg_output, &cfg_system);
+	if (cfg_system.autocommit) {
+		commit_output();
+	} else {
+		uart_write_str("AUTOCOMMIT OFF: CHANGE PENDING ON COMMIT\r\n");
+	}
 }
 
 void set_autocommit(uint8_t *s)
@@ -329,8 +341,7 @@ void process_input()
 		uart_write_str(state_constant_current ? "CURRENT" : "VOLTAGE");
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "COMMIT") == 0) {
-		output_commit(&cfg_output, &cfg_system);
-		output_check_state(&cfg_output, state_constant_current);
+		commit_output();
 	} else if (strcmp(uart_read_buf, "SAVE") == 0) {
 		config_save_system(&cfg_system);
 		config_save_output(&cfg_output);
@@ -590,7 +601,7 @@ int main()
 	ensure_afr0_set();
 
 	iwatchdog_init();
-	output_commit(&cfg_output, &cfg_system);
+	commit_output();
 
 	do {
 		iwatchdog_tick();

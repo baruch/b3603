@@ -55,26 +55,21 @@ void pwm_init(void)
 	// Timers are still off, will be turned on when output is turned on
 }
 
-void cvcc_led_cc(void)
+inline void cvcc_led_cc(void)
 {
 	PA_ODR |= (1<<3);
 	PA_DDR |= (1<<3);
 }
 
-void cvcc_led_cv(void)
+inline void cvcc_led_cv(void)
 {
 	PA_ODR &= ~(1<<3);
 	PA_DDR |= (1<<3);
 }
 
-void cvcc_led_off(void)
+inline void cvcc_led_off(void)
 {
 	PA_DDR &= ~(1<<3);
-}
-
-uint8_t output_state(void)
-{
-	return (PB_ODR & (1<<4)) ? 0 : 1;
 }
 
 uint16_t pwm_from_set(uint16_t set, calibrate_t *cal)
@@ -120,38 +115,32 @@ void control_current(cfg_output_t *cfg, cfg_system_t *sys)
 	TIM1_CR1 |= 0x01; // Enable timer
 }
 
-void output_commit(cfg_output_t *cfg, cfg_system_t *sys)
+void output_commit(cfg_output_t *cfg, cfg_system_t *sys, uint8_t state_constant_current)
 {
+	// Startup and shutdown orders need to be in reverse order
 	if (cfg->output) {
 		control_voltage(cfg, sys);
 		control_current(cfg, sys);
-	}
 
-	if (cfg->output != output_state()) {
-		// Startup and shutdown orders need to be in reverse order
-		if (cfg->output) {
-			// We turned on the PWMs above already
-			PB_ODR &= ~(1<<4);
+		// We turned on the PWMs above already
+		PB_ODR &= ~(1<<4);
+		output_check_state(cfg, state_constant_current);
+	} else {
+		// Set Output Enable OFF
+		PB_ODR |= (1<<4);
 
-			// Set the CV/CC to some value, it will get reset to actual on next polling cycle
-			cvcc_led_cv();
-		} else {
-			// Set Output Enable OFF
-			PB_ODR |= (1<<4);
+		// Turn off PWM for Iout
+		TIM1_CCR1H = 0;
+		TIM1_CCR1L = 0;
+		TIM1_CR1 &= 0xFE; // Disable timer
 
-			// Turn off PWM for Iout
-			TIM1_CCR1H = 0;
-			TIM1_CCR1L = 0;
-			TIM1_CR1 &= 0xFE; // Disable timer
+		// Turn off PWM for Vout
+		TIM2_CCR1H = 0;
+		TIM2_CCR1L = 0;
+		TIM2_CR1 &= 0xFE; // Disable timer
 
-			// Turn off PWM for Vout
-			TIM2_CCR1H = 0;
-			TIM2_CCR1L = 0;
-			TIM2_CR1 &= 0xFE; // Disable timer
-
-			// Turn off CV/CC led
-			cvcc_led_off();
-		}
+		// Turn off CV/CC led
+		cvcc_led_off();
 	}
 }
 

@@ -31,3 +31,4 @@ void uart_write_int(uint16_t val);
 void uart_write_fixed_point(uint16_t val);
 void uart_write_from_buf(void);
 void uart_read_to_buf(void);
+void uart_flush_writes(void);

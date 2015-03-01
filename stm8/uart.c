@@ -170,3 +170,9 @@ void uart_read_to_buf(void)
 		}
 	}
 }
+
+void uart_flush_writes(void)
+{
+	while (uart_write_len > 0)
+		uart_write_from_buf();
+}

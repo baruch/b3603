@@ -136,7 +136,7 @@ uint16_t parse_fixed_point(uint8_t *s)
 		}
 	}
 
-	whole_digits <<= 10;
+	whole_digits <<= FIXED_SHIFT;
 
 	for (; *s != 0 && fraction_factor < 1000; s++) {
 		if (*s >= '0' && *s <= '9') {
@@ -149,7 +149,7 @@ uint16_t parse_fixed_point(uint8_t *s)
 		}
 	}
 
-	fraction_digits <<= 10;
+	fraction_digits <<= FIXED_SHIFT;
 	fraction_digits /= fraction_factor;
 
 	return whole_digits + fraction_digits + 1;
@@ -485,7 +485,7 @@ uint16_t adc_to_volt(uint16_t adc, calibrate_t *cal)
 
 	tmp = adc;
 	tmp *= cal->a;
-	tmp >>= 10;
+	tmp >>= FIXED_SHIFT;
 
 	tmp16 = tmp;
 	if (tmp16 > cal->b)
@@ -545,14 +545,14 @@ void read_state(void)
 					uint8_t ch3;
 					uint8_t ch4;
 
-					val = state_vin >> 10;
+					val = state_vin >> FIXED_SHIFT;
 
 					ch2 = '0' + (val % 10);
 					ch1 = '0' + (val / 10) % 10;
 
-					val = state_vin - (val<<10);
+					val = state_vin & FIXED_FRACTION_MASK;
 					val *= 100;
-					val >>= 10;
+					val >>= FIXED_SHIFT;
 
 					ch4 = '0' + (val % 10);
 					ch3 = '0' + (val / 10) % 10;

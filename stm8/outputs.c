@@ -80,7 +80,7 @@ uint16_t pwm_from_set(uint16_t set, calibrate_t *cal)
 	// x*a
 	tmp = set;
 	tmp *= cal->a;
-	tmp >>= 10;
+	tmp >>= FIXED_SHIFT;
 
 	// x*a + b
 	tmp += cal->b;
@@ -89,11 +89,11 @@ uint16_t pwm_from_set(uint16_t set, calibrate_t *cal)
 	tmp *= PWM_VAL;
 
 	// round((x*a + b) * PWM_VAL)
-	tmp >>= 10;
+	tmp >>= FIXED_SHIFT;
 
 	// (x*a + b)/3.3v * PWM_VAL
 	tmp *= FLOAT_TO_FIXED(1/3.3);
-	tmp >>= 10;
+	tmp >>= FIXED_SHIFT;
 
 	return (uint16_t)tmp;
 }

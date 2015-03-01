@@ -1,5 +1,7 @@
 #define FIXED_SHIFT 10
 
+#define FIXED_FRACTION_MASK ((1<<FIXED_SHIFT)-1)
+
 /* The FLOAT_TO_FIXED(f) macro takes a float number and converts it to a fixed
  * point number with FIXED_SHIFT bits fraction part.
  *

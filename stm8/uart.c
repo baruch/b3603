@@ -17,6 +17,7 @@
  */
 
 #include "uart.h"
+#include "fixedpoint.h"
 #include "stm8s.h"
 
 uint8_t uart_write_buf[255];
@@ -105,17 +106,16 @@ void uart_write_fixed_point(uint16_t val)
 	uint32_t big;
 	
 	// Print the integer part
-	tmp = val >> 10;
+	tmp = val >> FIXED_SHIFT;
 	uart_write_int(tmp);
 	uart_write_ch('.');
 
 	// Remove the integer part
-	tmp <<= 10;
-	big = val - tmp;
+	big = val & FIXED_FRACTION_MASK;
 
 	// Take three decimal digits from the fraction part
 	big *= 1000;
-	big >>= 10;
+	big >>= FIXED_SHIFT;
 	val = big;
 
 	// Pad with zeros if the number is too small

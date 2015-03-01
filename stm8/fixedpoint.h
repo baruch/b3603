@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-#define FIXED_SHIFT 11
+#define FIXED_SHIFT 10
 
 #define FIXED_FRACTION_MASK ((1<<FIXED_SHIFT)-1)
 

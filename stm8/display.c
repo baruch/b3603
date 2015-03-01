@@ -42,7 +42,7 @@ static const display_number[10] = {
 #define PULSE_CLOCK() do { PA_ODR |= (1<<1); PA_ODR &= ~(1<<1); } while (0)
 #define SAVE_DATA() do { PA_ODR &= ~(1<<2); PA_ODR |= (1<<2); } while (0)
 
-void display_word(uint16_t word)
+inline void display_word(uint16_t word)
 {
 	uint8_t i;
 

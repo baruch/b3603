@@ -97,7 +97,7 @@ uint16_t pwm_from_set(uint16_t set, calibrate_t *cal)
 	return (uint16_t)tmp;
 }
 
-void control_voltage(cfg_output_t *cfg, cfg_system_t *sys)
+inline void control_voltage(cfg_output_t *cfg, cfg_system_t *sys)
 {
 	uint16_t ctr = pwm_from_set(cfg->vset, &sys->vout_pwm);
 
@@ -106,7 +106,7 @@ void control_voltage(cfg_output_t *cfg, cfg_system_t *sys)
 	TIM2_CR1 |= 0x01; // Enable timer
 }
 
-void control_current(cfg_output_t *cfg, cfg_system_t *sys)
+inline void control_current(cfg_output_t *cfg, cfg_system_t *sys)
 {
 	uint16_t ctr = pwm_from_set(cfg->cset, &sys->cout_pwm);
 

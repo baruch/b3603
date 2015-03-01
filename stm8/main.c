@@ -397,12 +397,12 @@ void process_input()
 	read_newline = 0;
 }
 
-void clk_init()
+inline void clk_init()
 {
 	CLK_CKDIVR = 0x00; // Set the frequency to 16 MHz
 }
 
-void pinout_init()
+inline void pinout_init()
 {
 	// PA1 is 74HC595 SHCP, output
 	// PA2 is 74HC595 STCP, output
@@ -460,7 +460,7 @@ void adc_start(uint8_t channel)
 	ADC1_CR1 |= 1; // Trigger conversion
 }
 
-uint8_t adc_ready()
+inline uint8_t adc_ready()
 {
 	return ADC1_CSR & 0x80;
 }

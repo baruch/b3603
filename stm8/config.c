@@ -27,7 +27,7 @@
 #define SYSTEM_CFG_VERSION 1
 #define OUTPUT_CFG_VERSION 1
 
-void validate_system_config(cfg_system_t *sys)
+inline void validate_system_config(cfg_system_t *sys)
 {
 	if (sys->version != SYSTEM_CFG_VERSION) {
 		memset(sys, 0, sizeof(*sys));
@@ -80,7 +80,7 @@ void config_save_system(cfg_system_t *sys)
 	eeprom_save_data((uint8_t*)SYSTEM_CONFIG, (uint8_t*)sys, sizeof(*sys));
 }
 
-void validate_output_config(cfg_output_t *cfg)
+inline void validate_output_config(cfg_output_t *cfg)
 {
 	if (cfg->version != OUTPUT_CFG_VERSION || cfg->vset == 0 || cfg->cset == 0) {
 		cfg->vset = 5<<10; // 5V

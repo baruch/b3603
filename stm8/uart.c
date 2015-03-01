@@ -44,12 +44,12 @@ void uart_init()
 	read_newline = 0;
 }
 
-uint8_t uart_write_ready(void)
+inline uint8_t uart_write_ready(void)
 {
 	return (USART1_SR & USART_SR_TXE);
 }
 
-uint8_t uart_read_available(void)
+inline uint8_t uart_read_available(void)
 {
 	return (USART1_SR & USART_SR_RXNE);
 }
@@ -140,7 +140,7 @@ void uart_write_from_buf(void)
 	}
 }
 
-uint8_t uart_read_ch(void)
+inline uint8_t uart_read_ch(void)
 {
 	return USART1_DR;
 }

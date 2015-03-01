@@ -9,7 +9,7 @@ struct calibrate_points {
 struct calibrate_points vin_points[2];
 struct calibrate_points vout_points[2];
 
-static void calibrate_calc(struct calibrate_points *points, calibrate_t *c)
+inline void calibrate_calc(struct calibrate_points *points, calibrate_t *c)
 {
 	if (points[0].set_point && points[0].val && points[1].set_point && points[1].val) {
 		uint32_t tmp1;

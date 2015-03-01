@@ -31,13 +31,13 @@
 #include "calibrate.h"
 #include "config.h"
 
-const uint16_t cap_vmin = FLOAT_TO_FIXED(0.01); // 10mV
-const uint16_t cap_vmax = FLOAT_TO_FIXED(35.0); // 35 V
-const uint16_t cap_vstep = FLOAT_TO_FIXED(0.01); // 10mV
+#define CAP_VMIN FLOAT_TO_FIXED(0.01) // 10mV
+#define CAP_VMAX FLOAT_TO_FIXED(35.0) // 35 V
+#define CAP_VSTEP FLOAT_TO_FIXED(0.01) // 10mV
 
-const uint16_t cap_cmin = FLOAT_TO_FIXED(0.001); // 1 mA
-const uint16_t cap_cmax = FLOAT_TO_FIXED(3); // 3 A
-const uint16_t cap_cstep = FLOAT_TO_FIXED(0.001); // 1 mA
+#define CAP_CMIN FLOAT_TO_FIXED(0.001) // 1 mA
+#define CAP_CMAX FLOAT_TO_FIXED(3) // 3 A
+#define CAP_CSTEP FLOAT_TO_FIXED(0.001) // 1 mA
 
 cfg_system_t cfg_system;
 cfg_output_t cfg_output;
@@ -170,11 +170,11 @@ void set_voltage(uint8_t *s)
 	if (val == 0xFFFF)
 		return;
 
-	if (val > cap_vmax) {
+	if (val > CAP_VMAX) {
 		uart_write_str("VOLTAGE VALUE TOO HIGH\r\n");
 		return;
 	}
-	if (val < cap_vmin) {
+	if (val < CAP_VMIN) {
 		uart_write_str("VOLTAGE VALUE TOO LOW\r\n");
 		return;
 	}
@@ -199,11 +199,11 @@ void set_current(uint8_t *s)
 	if (val == 0xFFFF)
 		return;
 
-	if (val > cap_cmax) {
+	if (val > CAP_CMAX) {
 		uart_write_str("CURRENT VALUE TOO HIGH\r\n");
 		return;
 	}
-	if (val < cap_cmin) {
+	if (val < CAP_CMIN) {
 		uart_write_str("CURRENT VALUE TOO LOW\r\n");
 		return;
 	}
@@ -284,19 +284,19 @@ void process_input()
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "VLIST") == 0) {
 		uart_write_str("VLIST:\r\nVOLTAGE MIN: ");
-		uart_write_fixed_point(cap_vmin);
+		uart_write_fixed_point(CAP_VMIN);
 		uart_write_str("\r\nVOLTAGE MAX: ");
-		uart_write_fixed_point(cap_vmax);
+		uart_write_fixed_point(CAP_VMAX);
 		uart_write_str("\r\nVOLTAGE STEP: ");
-		uart_write_fixed_point(cap_vstep);
+		uart_write_fixed_point(CAP_VSTEP);
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "CLIST") == 0) {
 		uart_write_str("CLIST:\r\nCURRENT MIN: ");
-		uart_write_fixed_point(cap_cmin);
+		uart_write_fixed_point(CAP_CMIN);
 		uart_write_str("\r\nCURRENT MAX: ");
-		uart_write_fixed_point(cap_cmax);
+		uart_write_fixed_point(CAP_CMAX);
 		uart_write_str("\r\nCURRENT STEP: ");
-		uart_write_fixed_point(cap_cstep);
+		uart_write_fixed_point(CAP_CSTEP);
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "CONFIG") == 0) {
 		uart_write_str("CONFIG:\r\nOUTPUT: ");

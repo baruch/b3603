@@ -23,7 +23,6 @@
 
 typedef struct {
 	uint8_t version;
-	uint8_t output;
 	uint16_t vset;
 	uint16_t cset;
 	uint16_t vshutdown;
@@ -42,6 +41,7 @@ typedef struct {
 	uint8_t version;
 	uint8_t name[17];
 	uint8_t default_on;
+	uint8_t output;
 	uint8_t autocommit;
 
 	calibrate_t vin_adc;

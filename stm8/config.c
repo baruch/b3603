@@ -39,6 +39,7 @@ void validate_system_config(cfg_system_t *sys)
 	if (sys->name[0] == 0) {
 		strcpy(sys->name, "Unnamed");
 		sys->default_on = 0;
+		sys->output = 0;
 		sys->autocommit = 1;
 	}
 
@@ -82,7 +83,6 @@ void config_save_system(cfg_system_t *sys)
 void validate_output_config(cfg_output_t *cfg)
 {
 	if (cfg->version != OUTPUT_CFG_VERSION || cfg->vset == 0 || cfg->cset == 0) {
-		cfg->output = 0;
 		cfg->vset = 5<<10; // 5V
 		cfg->cset = (1<<10) / 2; // 0.5A
 		cfg->vshutdown = 0;

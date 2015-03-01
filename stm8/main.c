@@ -94,10 +94,10 @@ void set_output(uint8_t *s)
 	}
 
 	if (s[0] == '0') {
-		cfg_output.output = 0;
+		cfg_system.output = 0;
 		uart_write_str("OUTPUT: OFF\r\n");
 	} else if (s[0] == '1') {
-		cfg_output.output = 1;
+		cfg_system.output = 1;
 		uart_write_str("OUTPUT: ON\r\n");
 	} else {
 //		uart_write_str("OUTPUT takes either 0 for OFF or 1 for ON, received: \"");
@@ -300,7 +300,7 @@ void process_input()
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "CONFIG") == 0) {
 		uart_write_str("CONFIG:\r\nOUTPUT: ");
-		uart_write_str(cfg_output.output ? "ON" : "OFF");
+		uart_write_str(cfg_system.output ? "ON" : "OFF");
 		uart_write_str("\r\nVOLTAGE SET: ");
 		uart_write_fixed_point(cfg_output.vset);
 		uart_write_str("\r\nCURRENT SET: ");
@@ -318,19 +318,19 @@ void process_input()
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "STATUS") == 0) {
 		uart_write_str("STATUS:\r\nOUTPUT: ");
-		uart_write_str(cfg_output.output ? "ON" : "OFF");
+		uart_write_str(cfg_system.output ? "ON" : "OFF");
 		uart_write_str("\r\nVOLTAGE IN: ");
 		uart_write_fixed_point(state_vin);
 		uart_write_str("\r\nVOLTAGE OUT: ");
-		uart_write_fixed_point(cfg_output.output ? state_vout : 0);
+		uart_write_fixed_point(cfg_system.output ? state_vout : 0);
 		uart_write_str("\r\nCURRENT OUT: ");
-		uart_write_fixed_point(cfg_output.output ? state_cout : 0);
+		uart_write_fixed_point(cfg_system.output ? state_cout : 0);
 		uart_write_str("\r\nCONSTANT: ");
 		uart_write_str(state_constant_current ? "CURRENT" : "VOLTAGE");
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "RSTATUS") == 0) {
 		uart_write_str("RSTATUS:\r\nOUTPUT: ");
-		uart_write_str(cfg_output.output ? "ON" : "OFF");
+		uart_write_str(cfg_system.output ? "ON" : "OFF");
 		uart_write_str("\r\nVOLTAGE IN ADC: ");
 		uart_write_int(state_vin_raw);
 		uart_write_str("\r\nVOLTAGE OUT ADC: ");
@@ -471,7 +471,9 @@ void config_load(void)
 	config_load_output(&cfg_output);
 
 	if (cfg_system.default_on)
-		cfg_output.output = 1;
+		cfg_system.output = 1;
+	else
+		cfg_system.output = 0;
 
 	state_pc3 = 1;
 }
@@ -507,7 +509,7 @@ void read_state(void)
 	tmp = (PB_IDR & (1<<5)) ? 1 : 0;
 	if (state_constant_current != tmp) {
 		state_constant_current = tmp;
-		output_check_state(&cfg_output, state_constant_current);
+		output_check_state(&cfg_system, state_constant_current);
 	}
 
 	if ((ADC1_CSR & 0x0F) == 0) {

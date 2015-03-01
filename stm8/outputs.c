@@ -118,13 +118,13 @@ void control_current(cfg_output_t *cfg, cfg_system_t *sys)
 void output_commit(cfg_output_t *cfg, cfg_system_t *sys, uint8_t state_constant_current)
 {
 	// Startup and shutdown orders need to be in reverse order
-	if (cfg->output) {
+	if (sys->output) {
 		control_voltage(cfg, sys);
 		control_current(cfg, sys);
 
 		// We turned on the PWMs above already
 		PB_ODR &= ~(1<<4);
-		output_check_state(cfg, state_constant_current);
+		output_check_state(sys, state_constant_current);
 	} else {
 		// Set Output Enable OFF
 		PB_ODR |= (1<<4);
@@ -144,9 +144,9 @@ void output_commit(cfg_output_t *cfg, cfg_system_t *sys, uint8_t state_constant_
 	}
 }
 
-void output_check_state(cfg_output_t *cfg, uint8_t state_constant_current)
+void output_check_state(cfg_system_t *sys, uint8_t state_constant_current)
 {
-	if (cfg->output) {
+	if (sys->output) {
 		if (state_constant_current)
 			cvcc_led_cc();
 		else

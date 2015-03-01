@@ -17,6 +17,7 @@
  */
 
 #include "outputs.h"
+#include "fixedpoint.h"
 
 #include "stm8s.h"
 
@@ -91,7 +92,7 @@ uint16_t pwm_from_set(uint16_t set, calibrate_t *cal)
 	tmp >>= 10;
 
 	// (x*a + b)/3.3v * PWM_VAL
-	tmp *= 310; // (1/3.3v) = (303<<10)/1000
+	tmp *= FLOAT_TO_FIXED(1/3.3);
 	tmp >>= 10;
 
 	return (uint16_t)tmp;

@@ -31,13 +31,13 @@
 #include "calibrate.h"
 #include "config.h"
 
-const uint16_t cap_vmin = (1<<10) / 100; // 10 mV
-const uint16_t cap_vmax = 35<<10; // 35 V
-const uint16_t cap_vstep = (1<<10) / 100; // 10mV
+const uint16_t cap_vmin = FLOAT_TO_FIXED(0.01); // 10mV
+const uint16_t cap_vmax = FLOAT_TO_FIXED(35.0); // 35 V
+const uint16_t cap_vstep = FLOAT_TO_FIXED(0.01); // 10mV
 
-const uint16_t cap_cmin = (1<<10) / 1000; // 1 mA
-const uint16_t cap_cmax = 3<<10; // 3 A
-const uint16_t cap_cstep = (1<<10) / 1000; // 1 mA
+const uint16_t cap_cmin = FLOAT_TO_FIXED(0.001); // 1 mA
+const uint16_t cap_cmax = FLOAT_TO_FIXED(3); // 3 A
+const uint16_t cap_cstep = FLOAT_TO_FIXED(0.001); // 1 mA
 
 cfg_system_t cfg_system;
 cfg_output_t cfg_output;

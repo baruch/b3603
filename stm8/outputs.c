@@ -75,27 +75,23 @@ inline void cvcc_led_off(void)
 
 uint16_t pwm_from_set(uint16_t set, calibrate_t *cal)
 {
-	uint32_t tmp;
+	uint16_t tmp;
 
 	// x*a
-	tmp = set;
-	tmp *= cal->a;
-	tmp >>= FIXED_SHIFT;
+	tmp = fixed_mult(set, cal->a);
 
 	// x*a + b
 	tmp += cal->b;
 
 	// (x*a + b) * PWM_VAL
-	tmp *= PWM_VAL;
-
 	// round((x*a + b) * PWM_VAL)
-	tmp >>= FIXED_SHIFT;
+	// PWM_VAL is not a fixed point, but with the shift it also rounds down to avoid overflow
+	tmp = fixed_mult(tmp, PWM_VAL);
 
 	// (x*a + b)/3.3v * PWM_VAL
-	tmp *= FLOAT_TO_FIXED(1/3.3);
-	tmp >>= FIXED_SHIFT;
+	tmp = fixed_mult(tmp, FLOAT_TO_FIXED(1/3.3));
 
-	return (uint16_t)tmp;
+	return tmp;
 }
 
 inline void control_voltage(cfg_output_t *cfg, cfg_system_t *sys)

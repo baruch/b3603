@@ -103,7 +103,6 @@ void uart_write_int(uint16_t val)
 void uart_write_fixed_point(uint16_t val)
 {
 	uint16_t tmp;
-	uint32_t big;
 	
 	// Print the integer part
 	tmp = val >> FIXED_SHIFT;
@@ -111,21 +110,19 @@ void uart_write_fixed_point(uint16_t val)
 	uart_write_ch('.');
 
 	// Remove the integer part
-	big = val & FIXED_FRACTION_MASK;
+	tmp = val & FIXED_FRACTION_MASK;
 
 	// Take three decimal digits from the fraction part
-	big *= 1000;
-	big >>= FIXED_SHIFT;
-	val = big;
+	tmp = fixed_mult(tmp, 1000);
 
 	// Pad with zeros if the number is too small
-	if (val < 100)
+	if (tmp < 100)
 		uart_write_ch('0');
-	if (val < 10)
+	if (tmp < 10)
 		uart_write_ch('0');
 
 	// Write the remaining fractional part
-	uart_write_int(val);
+	uart_write_int(tmp);
 }
 
 void uart_write_from_buf(void)

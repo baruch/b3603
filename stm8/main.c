@@ -480,18 +480,14 @@ void config_load(void)
 
 uint16_t adc_to_volt(uint16_t adc, calibrate_t *cal)
 {
-	uint32_t tmp;
-	uint16_t tmp16;
+	uint16_t tmp;
 
-	tmp = adc;
-	tmp *= cal->a;
-	tmp >>= FIXED_SHIFT;
+	tmp = fixed_mult(adc, cal->a);
 
-	tmp16 = tmp;
-	if (tmp16 > cal->b)
-		tmp16 -= cal->b;
+	if (tmp > cal->b)
+		tmp -= cal->b;
 
-	return tmp16;
+	return tmp;
 }
 
 void read_state(void)
@@ -551,8 +547,7 @@ void read_state(void)
 					ch1 = '0' + (val / 10) % 10;
 
 					val = state_vin & FIXED_FRACTION_MASK;
-					val *= 100;
-					val >>= FIXED_SHIFT;
+					val = fixed_mult(val, 100);
 
 					ch4 = '0' + (val % 10);
 					ch3 = '0' + (val / 10) % 10;

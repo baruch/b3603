@@ -22,6 +22,7 @@
 #include <stdint.h>
 
 typedef struct {
+	uint8_t version;
 	uint8_t output;
 	uint16_t vset;
 	uint16_t cset;
@@ -38,6 +39,7 @@ typedef struct {
 } calibrate_t;
 
 typedef struct {
+	uint8_t version;
 	uint8_t name[17];
 	uint8_t default_on;
 	uint8_t autocommit;

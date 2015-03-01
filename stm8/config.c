@@ -24,8 +24,18 @@
 #define SYSTEM_CONFIG ((cfg_system_t *)0x4000)
 #define OUTPUT_CONFIG ((cfg_output_t *)0x4040)
 
+#define SYSTEM_CFG_VERSION 1
+#define OUTPUT_CFG_VERSION 1
+
 void validate_system_config(cfg_system_t *sys)
 {
+	if (sys->version != SYSTEM_CFG_VERSION) {
+		memset(sys, 0, sizeof(*sys));
+		sys->version = SYSTEM_CFG_VERSION;
+		// TODO: If we want easy upgradability we can implement it here to
+		// upgrade from an old struct to a new one.
+	}
+
 	if (sys->name[0] == 0) {
 		strcpy(sys->name, "Unnamed");
 		sys->default_on = 0;
@@ -71,7 +81,7 @@ void config_save_system(cfg_system_t *sys)
 
 void validate_output_config(cfg_output_t *cfg)
 {
-	if (cfg->vset == 0 || cfg->cset == 0) {
+	if (cfg->version != OUTPUT_CFG_VERSION || cfg->vset == 0 || cfg->cset == 0) {
 		cfg->output = 0;
 		cfg->vset = 5<<10; // 5V
 		cfg->cset = (1<<10) / 2; // 0.5A

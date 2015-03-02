@@ -42,15 +42,7 @@
 
 cfg_system_t cfg_system;
 cfg_output_t cfg_output;
-
-uint16_t state_vin_raw;
-uint16_t state_vout_raw;
-uint16_t state_cout_raw;
-fixed_t state_vin;
-fixed_t state_vout;
-fixed_t state_cout;
-uint8_t state_constant_current; // If false, we are in constant voltage
-uint8_t state_pc3;
+state_t state;
 
 inline iwatchdog_init(void)
 {
@@ -65,7 +57,7 @@ inline iwatchdog_tick(void)
 
 void commit_output()
 {
-	output_commit(&cfg_output, &cfg_system, state_constant_current);
+	output_commit(&cfg_output, &cfg_system, state.constant_current);
 }
 
 void set_name(uint8_t *name)
@@ -271,25 +263,25 @@ void process_input()
 		uart_write_str("STATUS:\r\nOUTPUT: ");
 		uart_write_str(cfg_system.output ? "ON" : "OFF");
 		uart_write_str("\r\nVOLTAGE IN: ");
-		uart_write_fixed_point(state_vin);
+		uart_write_fixed_point(state.vin);
 		uart_write_str("\r\nVOLTAGE OUT: ");
-		uart_write_fixed_point(cfg_system.output ? state_vout : 0);
+		uart_write_fixed_point(cfg_system.output ? state.vout : 0);
 		uart_write_str("\r\nCURRENT OUT: ");
-		uart_write_fixed_point(cfg_system.output ? state_cout : 0);
+		uart_write_fixed_point(cfg_system.output ? state.cout : 0);
 		uart_write_str("\r\nCONSTANT: ");
-		uart_write_str(state_constant_current ? "CURRENT" : "VOLTAGE");
+		uart_write_str(state.constant_current ? "CURRENT" : "VOLTAGE");
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "RSTATUS") == 0) {
 		uart_write_str("RSTATUS:\r\nOUTPUT: ");
 		uart_write_str(cfg_system.output ? "ON" : "OFF");
 		uart_write_str("\r\nVOLTAGE IN ADC: ");
-		uart_write_int(state_vin_raw);
+		uart_write_int(state.vin_raw);
 		uart_write_str("\r\nVOLTAGE OUT ADC: ");
-		uart_write_int(state_vout_raw);
+		uart_write_int(state.vout_raw);
 		uart_write_str("\r\nCURRENT OUT ADC: ");
-		uart_write_int(state_cout_raw);
+		uart_write_int(state.cout_raw);
 		uart_write_str("\r\nCONSTANT: ");
-		uart_write_str(state_constant_current ? "CURRENT" : "VOLTAGE");
+		uart_write_str(state.constant_current ? "CURRENT" : "VOLTAGE");
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "COMMIT") == 0) {
 		commit_output();
@@ -329,13 +321,13 @@ void process_input()
 			} else if (strcmp(uart_read_buf, "AUTOCOMMIT") == 0) {
 				set_autocommit(uart_read_buf + idx + 1);
 			} else if (strcmp(uart_read_buf, "CALVIN1") == 0) {
-				calibrate_vin(1, parse_fixed_point(uart_read_buf+idx+1), state_vin_raw, &cfg_system.vin_adc);
+				calibrate_vin(1, parse_fixed_point(uart_read_buf+idx+1), state.vin_raw, &cfg_system.vin_adc);
 			} else if (strcmp(uart_read_buf, "CALVIN2") == 0) {
-				calibrate_vin(2, parse_fixed_point(uart_read_buf+idx+1), state_vin_raw, &cfg_system.vin_adc);
+				calibrate_vin(2, parse_fixed_point(uart_read_buf+idx+1), state.vin_raw, &cfg_system.vin_adc);
 			} else if (strcmp(uart_read_buf, "CALVOUT1") == 0) {
-				calibrate_vout(1, parse_fixed_point(uart_read_buf+idx+1), state_vout_raw, &cfg_system.vout_adc);
+				calibrate_vout(1, parse_fixed_point(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc);
 			} else if (strcmp(uart_read_buf, "CALVOUT2") == 0) {
-				calibrate_vout(2, parse_fixed_point(uart_read_buf+idx+1), state_vout_raw, &cfg_system.vout_adc);
+				calibrate_vout(2, parse_fixed_point(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc);
 			} else {
 				uart_write_str("UNKNOWN COMMAND!\r\n");
 			}
@@ -426,7 +418,7 @@ void config_load(void)
 	else
 		cfg_system.output = 0;
 
-	state_pc3 = 1;
+	state.pc3 = 1;
 }
 
 fixed_t adc_to_volt(uint16_t adc, calibrate_t *cal)
@@ -446,17 +438,17 @@ void read_state(void)
 	uint8_t tmp;
 
 	tmp = (PC_IDR & (1<<3)) ? 1 : 0;
-	if (state_pc3 != tmp) {
+	if (state.pc3 != tmp) {
 		uart_write_str("PC3 is now ");
 		uart_write_ch('0' + tmp);
 		uart_write_str("\r\n");
-		state_pc3 = tmp;
+		state.pc3 = tmp;
 	}
 
 	tmp = (PB_IDR & (1<<5)) ? 1 : 0;
-	if (state_constant_current != tmp) {
-		state_constant_current = tmp;
-		output_check_state(&cfg_system, state_constant_current);
+	if (state.constant_current != tmp) {
+		state.constant_current = tmp;
+		output_check_state(&cfg_system, state.constant_current);
 	}
 
 	if ((ADC1_CSR & 0x0F) == 0) {
@@ -470,21 +462,21 @@ void read_state(void)
 
 		switch (ch) {
 			case 2:
-				state_cout_raw = val;
+				state.cout_raw = val;
 				// Calculation: val * cal_cout_a * 3.3 / 1024 - cal_cout_b
-				state_cout = adc_to_volt(val, &cfg_system.cout_adc);
+				state.cout = adc_to_volt(val, &cfg_system.cout_adc);
 				ch = 3;
 				break;
 			case 3:
-				state_vout_raw = val;
+				state.vout_raw = val;
 				// Calculation: val * cal_vout_a * 3.3 / 1024 - cal_vout_b
-				state_vout = adc_to_volt(val, &cfg_system.vout_adc);
+				state.vout = adc_to_volt(val, &cfg_system.vout_adc);
 				ch = 4;
 				break;
 			case 4:
-				state_vin_raw = val;
+				state.vin_raw = val;
 				// Calculation: val * cal_vin * 3.3 / 1024
-				state_vin = adc_to_volt(val, &cfg_system.vin_adc);
+				state.vin = adc_to_volt(val, &cfg_system.vin_adc);
 				ch = 2;
 				{
 					uint8_t ch1;
@@ -492,12 +484,12 @@ void read_state(void)
 					uint8_t ch3;
 					uint8_t ch4;
 
-					val = state_vin >> FIXED_SHIFT;
+					val = state.vin >> FIXED_SHIFT;
 
 					ch2 = '0' + (val % 10);
 					ch1 = '0' + (val / 10) % 10;
 
-					val = state_vin & FIXED_FRACTION_MASK;
+					val = state.vin & FIXED_FRACTION_MASK;
 					val = fixed_mult(val, 100);
 
 					ch4 = '0' + (val % 10);

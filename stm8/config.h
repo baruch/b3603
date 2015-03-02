@@ -53,6 +53,17 @@ typedef struct {
 	calibrate_t cout_pwm;
 } cfg_system_t;
 
+typedef struct {
+	uint16_t vin_raw;
+	uint16_t vout_raw;
+	uint16_t cout_raw;
+	fixed_t vin;
+	fixed_t vout;
+	fixed_t cout;
+	uint8_t constant_current; // If false, we are in constant voltage
+	uint8_t pc3;
+} state_t;
+
 void config_load_system(cfg_system_t *sys);
 void config_save_system(cfg_system_t *sys);
 void config_load_output(cfg_output_t *cfg);

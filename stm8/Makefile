@@ -24,6 +24,9 @@ b3603.ihx: $(OBJ)
 	@mv .$<.tmp.d .$<.d
 	@$(SDCC) -c -o $@ $<
 
+test_pwm_accuracy: test_pwm_accuracy.c parse.c outputs.c config.c
+	gcc -g -Wall -o $@ $< -DTEST=1
+
 clean:
 	-rm -f *.rel *.ihx *.lk *.map *.rst *.lst *.asm *.sym .*.d
 

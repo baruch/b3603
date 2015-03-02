@@ -72,7 +72,11 @@ inline void validate_system_config(cfg_system_t *sys)
 
 void config_load_system(cfg_system_t *sys)
 {
+#if TEST
+	memset(sys, 0, sizeof(*sys));
+#else
 	memcpy(sys, SYSTEM_CONFIG, sizeof(*sys));
+#endif
 	validate_system_config(sys);
 }
 
@@ -93,7 +97,11 @@ inline void validate_output_config(cfg_output_t *cfg)
 
 void config_load_output(cfg_output_t *cfg)
 {
+#if TEST
+	memset(cfg, 0, sizeof(*cfg));
+#else
 	memcpy(cfg, OUTPUT_CONFIG, sizeof(*cfg));
+#endif
 	validate_output_config(cfg);
 }
 

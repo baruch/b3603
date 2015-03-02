@@ -7,3 +7,5 @@
 *.asm
 *.sym
 .*.d
+test_pwm_accuracy
+.*

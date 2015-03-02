@@ -20,21 +20,22 @@
 #define CONFIG_H
 
 #include <stdint.h>
+#include "fixedpoint.h"
 
 typedef struct {
 	uint8_t version;
-	uint16_t vset;
-	uint16_t cset;
-	uint16_t vshutdown;
-	uint16_t cshutdown;
+	fixed_t vset;
+	fixed_t cset;
+	fixed_t vshutdown;
+	fixed_t cshutdown;
 } cfg_output_t;
 
 // These parameters correspond to the linear formula:
 // y = a*x + b
 // where a and b are the coefficients, x is the input and y the calculated output
 typedef struct {
-	uint16_t a;
-	uint16_t b;
+	fixed_t a;
+	fixed_t b;
 } calibrate_t;
 
 typedef struct {

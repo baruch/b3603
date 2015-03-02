@@ -45,9 +45,9 @@ cfg_output_t cfg_output;
 uint16_t state_vin_raw;
 uint16_t state_vout_raw;
 uint16_t state_cout_raw;
-uint16_t state_vin;
-uint16_t state_vout;
-uint16_t state_cout;
+fixed_t state_vin;
+fixed_t state_vout;
+fixed_t state_cout;
 uint8_t state_constant_current; // If false, we are in constant voltage
 uint8_t state_pc3;
 
@@ -112,7 +112,7 @@ void set_output(uint8_t *s)
 	}
 }
 
-uint16_t parse_fixed_point(uint8_t *s)
+fixed_t parse_fixed_point(uint8_t *s)
 {
 	uint8_t *t = s;
 	uint16_t val = 0;
@@ -164,7 +164,7 @@ invalid_number:
 
 void set_voltage(uint8_t *s)
 {
-	uint16_t val;
+	fixed_t val;
 
 	val = parse_fixed_point(s);
 	if (val == 0xFFFF)
@@ -193,7 +193,7 @@ void set_voltage(uint8_t *s)
 
 void set_current(uint8_t *s)
 {
-	uint16_t val;
+	fixed_t val;
 
 	val = parse_fixed_point(s);
 	if (val == 0xFFFF)
@@ -478,9 +478,9 @@ void config_load(void)
 	state_pc3 = 1;
 }
 
-uint16_t adc_to_volt(uint16_t adc, calibrate_t *cal)
+fixed_t adc_to_volt(uint16_t adc, calibrate_t *cal)
 {
-	uint16_t tmp;
+	fixed_t tmp;
 
 	tmp = fixed_mult(adc, cal->a);
 

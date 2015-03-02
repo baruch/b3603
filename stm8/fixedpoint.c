@@ -4,11 +4,11 @@
  * We save one extra bit temporarily and if it is 1 we round up and if it is 0
  * we round down.
  */
-uint16_t fixed_mult(uint16_t x, uint16_t y)
+fixed_t fixed_mult(fixed_t x, fixed_t y)
 {
 	uint32_t tmp;
 	uint8_t round;
-	uint16_t tmp16;
+	fixed_t tmp16;
 
 	tmp = x;
 	tmp *= y;

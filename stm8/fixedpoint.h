@@ -21,4 +21,5 @@ typedef uint16_t fixed_t;
 #define FLOAT_TO_FIXED(f) (fixed_t)((FLOAT_TO_FIXED_BASE(f) >> 1) + FLOAT_TO_FIXED_ROUNDING(f))
 
 fixed_t fixed_mult(fixed_t x, fixed_t y);
+
 #endif

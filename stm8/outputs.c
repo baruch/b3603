@@ -73,23 +73,43 @@ inline void cvcc_led_off(void)
 	PA_DDR &= ~(1<<3);
 }
 
+#define FIXED_SHIFT13 13
+#define FLOAT_TO_FIXED_BASE13(f) (uint32_t)( (f)*(uint32_t)(1<<(FIXED_SHIFT13+1)) )
+#define FLOAT_TO_FIXED_ROUNDING13(f) (FLOAT_TO_FIXED_BASE13(f) & 1)
+#define FLOAT_TO_FIXED13(f) (uint16_t)((FLOAT_TO_FIXED_BASE13(f) >> 1) + FLOAT_TO_FIXED_ROUNDING13(f))
+uint32_t fixed_mult13(uint32_t x, uint32_t y)
+{
+uint32_t tmp;
+	uint8_t round;
+
+	tmp = x;
+	tmp *= y;
+	tmp >>= FIXED_SHIFT13-1;
+
+	round = tmp&1;
+	tmp = tmp >> 1;
+
+	if (round)
+		return tmp+1;
+	else
+		return tmp;
+}
+
 uint16_t pwm_from_set(fixed_t set, calibrate_t *cal)
 {
-	fixed_t tmp;
+	uint32_t tmp;
 
 	// x*a
-	tmp = fixed_mult(set, cal->a);
+	tmp = fixed_mult13(((uint32_t)set)<<3, ((uint32_t)cal->a)<<3);
 
 	// x*a + b
-	tmp += cal->b;
-
-	// (x*a + b) * PWM_VAL
-	// round((x*a + b) * PWM_VAL)
-	// PWM_VAL is not a fixed point, but with the shift it also rounds down to avoid overflow
-	tmp = fixed_mult(tmp, PWM_VAL);
+	tmp += cal->b << 3;
 
 	// (x*a + b)/3.3v * PWM_VAL
-	tmp = fixed_mult(tmp, FLOAT_TO_FIXED(1/3.3));
+	// PWM is 0x8000 and as such amounts to a shift by 13 so to multiple by PWM
+	// we simply shift all calculations by 3 and this avoids overflows and loss
+	// of precision.
+	tmp = fixed_mult13(tmp, FLOAT_TO_FIXED13(1/3.3));
 
 	return tmp;
 }

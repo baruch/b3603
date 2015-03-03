@@ -28,6 +28,8 @@
 #define SYSTEM_CFG_VERSION 1
 #define OUTPUT_CFG_VERSION 1
 
+#define DEFAULT_NAME_STR "Unnamed"
+
 inline void validate_system_config(cfg_system_t *sys)
 {
 	if (sys->version != SYSTEM_CFG_VERSION) {
@@ -38,7 +40,7 @@ inline void validate_system_config(cfg_system_t *sys)
 	}
 
 	if (sys->name[0] == 0) {
-		strcpy(sys->name, "Unnamed");
+		memcpy(sys->name, DEFAULT_NAME_STR, sizeof(DEFAULT_NAME_STR));
 		sys->default_on = 0;
 		sys->output = 0;
 		sys->autocommit = 1;

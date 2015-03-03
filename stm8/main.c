@@ -81,7 +81,7 @@ void set_name(uint8_t *name)
 void set_output(uint8_t *s)
 {
 	if (s[1] != 0) {
-		uart_write_str("OUTPUT takes either 0 for OFF or 1 for ON, received: \"");
+//		uart_write_str("OUTPUT takes either 0 for OFF or 1 for ON, received: \"");
 		uart_write_str(s);
 		uart_write_str("\"\r\n");
 		return;
@@ -94,7 +94,7 @@ void set_output(uint8_t *s)
 		cfg_system.output = 1;
 		uart_write_str("OUTPUT: ON\r\n");
 	} else {
-		uart_write_str("OUTPUT takes either 0 for OFF or 1 for ON, received: \"");
+//		uart_write_str("OUTPUT takes either 0 for OFF or 1 for ON, received: \"");
 		uart_write_str(s);
 		uart_write_str("\"\r\n");
 	}
@@ -466,7 +466,7 @@ void ensure_afr0_set(void)
 	if ((OPT2 & 1) == 0) {
 		uart_flush_writes();
 		if (eeprom_set_afr0()) {
-			uart_write_str("AFR0 set, reseting the unit\r\n");
+//			uart_write_str("AFR0 set, reseting the unit\r\n");
 			uart_flush_writes();
 			iwatchdog_init();
 			while (1); // Force a reset in a few msec
@@ -500,10 +500,8 @@ int main()
 	do {
 		iwatchdog_tick();
 		uart_write_from_buf();
-
 		read_state();
 		display_refresh();
-
 		uart_read_to_buf();
 		if (read_newline) {
 			process_input();

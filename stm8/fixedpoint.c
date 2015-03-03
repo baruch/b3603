@@ -22,3 +22,21 @@ fixed_t fixed_mult(fixed_t x, fixed_t y)
 	else
 		return tmp16;
 }
+
+uint32_t fixed_mult13(uint32_t x, uint32_t y)
+{
+	uint32_t tmp;
+	uint8_t round;
+
+	tmp = x;
+	tmp *= y;
+	tmp >>= FIXED_SHIFT13-1;
+
+	round = tmp&1;
+	tmp = tmp >> 1;
+
+	if (round)
+		return tmp+1;
+	else
+		return tmp;
+}

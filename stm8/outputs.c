@@ -73,28 +73,6 @@ inline void cvcc_led_off(void)
 	PA_DDR &= ~(1<<3);
 }
 
-#define FIXED_SHIFT13 13
-#define FLOAT_TO_FIXED_BASE13(f) (uint32_t)( (f)*(uint32_t)(1<<(FIXED_SHIFT13+1)) )
-#define FLOAT_TO_FIXED_ROUNDING13(f) (FLOAT_TO_FIXED_BASE13(f) & 1)
-#define FLOAT_TO_FIXED13(f) (uint16_t)((FLOAT_TO_FIXED_BASE13(f) >> 1) + FLOAT_TO_FIXED_ROUNDING13(f))
-uint32_t fixed_mult13(uint32_t x, uint32_t y)
-{
-uint32_t tmp;
-	uint8_t round;
-
-	tmp = x;
-	tmp *= y;
-	tmp >>= FIXED_SHIFT13-1;
-
-	round = tmp&1;
-	tmp = tmp >> 1;
-
-	if (round)
-		return tmp+1;
-	else
-		return tmp;
-}
-
 uint16_t pwm_from_set(fixed_t set, calibrate_t *cal)
 {
 	uint32_t tmp;

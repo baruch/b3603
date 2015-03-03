@@ -70,7 +70,7 @@ void set_name(uint8_t *name)
 			name[idx] = '.'; // Eliminate non-printable chars
 	}
 
-	strncpy(cfg_system.name, name, sizeof(cfg_system.name));
+	memcpy(cfg_system.name, name, sizeof(cfg_system.name));
 	cfg_system.name[sizeof(cfg_system.name)-1] = 0;
 
 	uart_write_str("SNAME: ");

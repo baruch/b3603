@@ -413,9 +413,7 @@ void read_state(void)
 		output_check_state(&cfg_system, state.constant_current);
 	}
 
-	if ((ADC1_CSR & 0x0F) == 0) {
-		adc_start(2);
-	} else if (adc_ready()) {
+	if (adc_ready()) {
 		uint16_t val = ADC1_DRL;
 		uint16_t valh = ADC1_DRH;
 		uint8_t ch = ADC1_CSR & 0x0F;
@@ -499,6 +497,7 @@ int main()
 	ensure_afr0_set();
 
 	iwatchdog_init();
+	adc_start(4);
 	commit_output();
 
 	do {

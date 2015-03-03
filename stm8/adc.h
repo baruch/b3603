@@ -9,6 +9,8 @@
 void adc_init(void);
 void adc_start(uint8_t channel);
 fixed_t adc_to_volt(uint16_t adc, calibrate_t *cal);
+uint16_t adc_read(void);
+uint8_t adc_channel(void);
 
 inline uint8_t adc_ready()
 {

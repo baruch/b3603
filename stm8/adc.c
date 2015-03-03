@@ -35,4 +35,15 @@ fixed_t adc_to_volt(uint16_t adc, calibrate_t *cal)
 	return tmp;
 }
 
+uint16_t adc_read(void)
+{
+		uint16_t val = ADC1_DRL;
+		uint16_t valh = ADC1_DRH;
 
+		return val | (valh<<8);
+}
+
+uint8_t adc_channel(void)
+{
+		return ADC1_CSR & 0x0F;
+}

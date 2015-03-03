@@ -414,11 +414,8 @@ void read_state(void)
 	}
 
 	if (adc_ready()) {
-		uint16_t val = ADC1_DRL;
-		uint16_t valh = ADC1_DRH;
-		uint8_t ch = ADC1_CSR & 0x0F;
-
-		val |= valh << 8;
+		uint16_t val = adc_read();
+		uint8_t ch = adc_channel();
 
 		switch (ch) {
 			case 2:

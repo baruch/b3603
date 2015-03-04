@@ -78,6 +78,15 @@ void set_name(uint8_t *name)
 	uart_write_str("\r\n");
 }
 
+void autocommit(void)
+{
+	if (cfg_system.autocommit) {
+		commit_output();
+	} else {
+		uart_write_str("AUTOCOMMIT OFF: CHANGE PENDING ON COMMIT\r\n");
+	}
+}
+
 void set_output(uint8_t *s)
 {
 	if (s[1] != 0) {
@@ -99,11 +108,7 @@ void set_output(uint8_t *s)
 		uart_write_str("\"\r\n");
 	}
 
-	if (cfg_system.autocommit) {
-		commit_output();
-	} else {
-		uart_write_str("AUTOCOMMIT OFF: CHANGE PENDING ON COMMIT\r\n");
-	}
+	autocommit();
 }
 
 void set_voltage(uint8_t *s)
@@ -128,11 +133,7 @@ void set_voltage(uint8_t *s)
 	uart_write_str("\r\n");
 	cfg_output.vset = val;
 
-	if (cfg_system.autocommit) {
-		commit_output();
-	} else {
-		uart_write_str("AUTOCOMMIT OFF: CHANGE PENDING ON COMMIT\r\n");
-	}
+	autocommit();
 }
 
 void set_current(uint8_t *s)
@@ -157,11 +158,7 @@ void set_current(uint8_t *s)
 	uart_write_str("\r\n");
 	cfg_output.cset = val;
 
-	if (cfg_system.autocommit) {
-		commit_output();
-	} else {
-		uart_write_str("AUTOCOMMIT OFF: CHANGE PENDING ON COMMIT\r\n");
-	}
+	autocommit();
 }
 
 void set_autocommit(uint8_t *s)

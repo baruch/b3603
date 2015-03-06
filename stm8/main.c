@@ -33,13 +33,13 @@
 #include "parse.h"
 #include "adc.h"
 
-#define CAP_VMIN FLOAT_TO_FIXED(0.01) // 10mV
-#define CAP_VMAX FLOAT_TO_FIXED(35.0) // 35 V
-#define CAP_VSTEP FLOAT_TO_FIXED(0.01) // 10mV
+#define CAP_VMIN 10 // 10mV
+#define CAP_VMAX 35000 // 35 V
+#define CAP_VSTEP 10 // 10mV
 
-#define CAP_CMIN FLOAT_TO_FIXED(0.001) // 1 mA
-#define CAP_CMAX FLOAT_TO_FIXED(3) // 3 A
-#define CAP_CSTEP FLOAT_TO_FIXED(0.001) // 1 mA
+#define CAP_CMIN 1 // 1 mA
+#define CAP_CMAX 3000 // 3 A
+#define CAP_CSTEP 1 // 1 mA
 
 cfg_system_t cfg_system;
 cfg_output_t cfg_output;
@@ -115,7 +115,7 @@ void set_voltage(uint8_t *s)
 {
 	fixed_t val;
 
-	val = parse_fixed_point(s);
+	val = parse_millinum(s);
 	if (val == 0xFFFF)
 		return;
 
@@ -129,7 +129,7 @@ void set_voltage(uint8_t *s)
 	}
 
 	uart_write_str("VOLTAGE: SET ");
-	uart_write_fixed_point(val);
+	uart_write_millivolt(val);
 	uart_write_str("\r\n");
 	cfg_output.vset = val;
 
@@ -140,7 +140,7 @@ void set_current(uint8_t *s)
 {
 	fixed_t val;
 
-	val = parse_fixed_point(s);
+	val = parse_millinum(s);
 	if (val == 0xFFFF)
 		return;
 
@@ -154,7 +154,7 @@ void set_current(uint8_t *s)
 	}
 
 	uart_write_str("CURRENT: SET ");
-	uart_write_fixed_point(val);
+	uart_write_milliamp(val);
 	uart_write_str("\r\n");
 	cfg_output.cset = val;
 
@@ -199,19 +199,19 @@ void process_input()
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "CALIBRATION") == 0) {
 		uart_write_str("CALIBRATE VIN ADC: ");
-		uart_write_fixed_point(cfg_system.vin_adc.a);
+		uart_write_fixed_point13(cfg_system.vin_adc.a);
 		uart_write_ch('/');
-		uart_write_fixed_point(cfg_system.vin_adc.b);
+		uart_write_fixed_point13(cfg_system.vin_adc.b);
 		uart_write_str("\r\n");
 		uart_write_str("CALIBRATE VOUT ADC: ");
-		uart_write_fixed_point(cfg_system.vout_adc.a);
+		uart_write_fixed_point13(cfg_system.vout_adc.a);
 		uart_write_ch('/');
-		uart_write_fixed_point(cfg_system.vout_adc.b);
+		uart_write_fixed_point13(cfg_system.vout_adc.b);
 		uart_write_str("\r\n");
 		uart_write_str("CALIBRATE COUT ADC: ");
-		uart_write_fixed_point(cfg_system.cout_adc.a);
+		uart_write_fixed_point13(cfg_system.cout_adc.a);
 		uart_write_ch('/');
-		uart_write_fixed_point(cfg_system.cout_adc.b);
+		uart_write_fixed_point13(cfg_system.cout_adc.b);
 		uart_write_str("\r\n");
 		uart_write_str("CALIBRATE VOUT PWM: ");
 		uart_write_fixed_point(cfg_system.vout_pwm.a);
@@ -225,47 +225,47 @@ void process_input()
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "VLIST") == 0) {
 		uart_write_str("VLIST:\r\nVOLTAGE MIN: ");
-		uart_write_fixed_point(CAP_VMIN);
+		uart_write_millivolt(CAP_VMIN);
 		uart_write_str("\r\nVOLTAGE MAX: ");
-		uart_write_fixed_point(CAP_VMAX);
+		uart_write_millivolt(CAP_VMAX);
 		uart_write_str("\r\nVOLTAGE STEP: ");
-		uart_write_fixed_point(CAP_VSTEP);
+		uart_write_millivolt(CAP_VSTEP);
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "CLIST") == 0) {
 		uart_write_str("CLIST:\r\nCURRENT MIN: ");
-		uart_write_fixed_point(CAP_CMIN);
+		uart_write_milliamp(CAP_CMIN);
 		uart_write_str("\r\nCURRENT MAX: ");
-		uart_write_fixed_point(CAP_CMAX);
+		uart_write_milliamp(CAP_CMAX);
 		uart_write_str("\r\nCURRENT STEP: ");
-		uart_write_fixed_point(CAP_CSTEP);
+		uart_write_milliamp(CAP_CSTEP);
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "CONFIG") == 0) {
 		uart_write_str("CONFIG:\r\nOUTPUT: ");
 		uart_write_str(cfg_system.output ? "ON" : "OFF");
 		uart_write_str("\r\nVOLTAGE SET: ");
-		uart_write_fixed_point(cfg_output.vset);
+		uart_write_millivolt(cfg_output.vset);
 		uart_write_str("\r\nCURRENT SET: ");
-		uart_write_fixed_point(cfg_output.cset);
+		uart_write_milliamp(cfg_output.cset);
 		uart_write_str("\r\nVOLTAGE SHUTDOWN: ");
 		if (cfg_output.vshutdown == 0)
 			uart_write_str("DISABLED");
 		else
-			uart_write_fixed_point(cfg_output.vshutdown);
+			uart_write_millivolt(cfg_output.vshutdown);
 		uart_write_str("\r\nCURRENT SHUTDOWN: ");
 		if (cfg_output.cshutdown == 0)
 			uart_write_str("DISABLED");
 		else
-			uart_write_fixed_point(cfg_output.cshutdown);
+			uart_write_milliamp(cfg_output.cshutdown);
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "STATUS") == 0) {
 		uart_write_str("STATUS:\r\nOUTPUT: ");
 		uart_write_str(cfg_system.output ? "ON" : "OFF");
 		uart_write_str("\r\nVOLTAGE IN: ");
-		uart_write_fixed_point(state.vin);
+		uart_write_millivolt(state.vin);
 		uart_write_str("\r\nVOLTAGE OUT: ");
-		uart_write_fixed_point(cfg_system.output ? state.vout : 0);
+		uart_write_millivolt(cfg_system.output ? state.vout : 0);
 		uart_write_str("\r\nCURRENT OUT: ");
-		uart_write_fixed_point(cfg_system.output ? state.cout : 0);
+		uart_write_millivolt(cfg_system.output ? state.cout : 0);
 		uart_write_str("\r\nCONSTANT: ");
 		uart_write_str(state.constant_current ? "CURRENT" : "VOLTAGE");
 		uart_write_str("\r\n");
@@ -319,13 +319,13 @@ void process_input()
 			} else if (strcmp(uart_read_buf, "AUTOCOMMIT") == 0) {
 				set_autocommit(uart_read_buf + idx + 1);
 			} else if (strcmp(uart_read_buf, "CALVIN1") == 0) {
-				calibrate_vin(1, parse_fixed_point(uart_read_buf+idx+1), state.vin_raw, &cfg_system.vin_adc);
+				calibrate_vin(1, parse_millinum(uart_read_buf+idx+1), state.vin_raw, &cfg_system.vin_adc);
 			} else if (strcmp(uart_read_buf, "CALVIN2") == 0) {
-				calibrate_vin(2, parse_fixed_point(uart_read_buf+idx+1), state.vin_raw, &cfg_system.vin_adc);
+				calibrate_vin(2, parse_millinum(uart_read_buf+idx+1), state.vin_raw, &cfg_system.vin_adc);
 			} else if (strcmp(uart_read_buf, "CALVOUT1") == 0) {
-				calibrate_vout(1, parse_fixed_point(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc);
+				calibrate_vout(1, parse_millinum(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc);
 			} else if (strcmp(uart_read_buf, "CALVOUT2") == 0) {
-				calibrate_vout(2, parse_fixed_point(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc);
+				calibrate_vout(2, parse_millinum(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc);
 			} else {
 				uart_write_str("UNKNOWN COMMAND!\r\n");
 			}

@@ -22,6 +22,7 @@ typedef uint16_t fixed_t;
 
 
 #define FIXED_SHIFT13 13
+#define FIXED_FRACTION_MASK13 ((1<<FIXED_SHIFT13)-1)
 #define FLOAT_TO_FIXED_BASE13(f) (uint32_t)( (f)*(uint32_t)(1<<(FIXED_SHIFT13+1)) )
 #define FLOAT_TO_FIXED_ROUNDING13(f) (FLOAT_TO_FIXED_BASE13(f) & 1)
 #define FLOAT_TO_FIXED13(f) (uint16_t)((FLOAT_TO_FIXED_BASE13(f) >> 1) + FLOAT_TO_FIXED_ROUNDING13(f))

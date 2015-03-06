@@ -8,4 +8,6 @@
 *.sym
 .*.d
 test_pwm_accuracy
+test_adc_accuracy
+test_parse
 .*

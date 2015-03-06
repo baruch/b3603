@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-uint16_t parse_fixed_point(uint8_t *s);
+uint16_t parse_millinum(uint8_t *s);
 
 #endif

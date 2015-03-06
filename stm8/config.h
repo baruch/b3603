@@ -24,10 +24,10 @@
 
 typedef struct {
 	uint8_t version;
-	fixed_t vset;
-	fixed_t cset;
-	fixed_t vshutdown;
-	fixed_t cshutdown;
+	uint16_t vset; // mV
+	uint16_t cset; // mA
+	uint16_t vshutdown; // mV
+	uint16_t cshutdown; // mA
 } cfg_output_t;
 
 // These parameters correspond to the linear formula:
@@ -57,9 +57,9 @@ typedef struct {
 	uint16_t vin_raw;
 	uint16_t vout_raw;
 	uint16_t cout_raw;
-	fixed_t vin;
-	fixed_t vout;
-	fixed_t cout;
+	uint16_t vin; // mV
+	uint16_t vout; // mV
+	uint16_t cout; // mA
 	uint8_t constant_current; // If false, we are in constant voltage
 	uint8_t pc3;
 } state_t;

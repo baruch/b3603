@@ -37,17 +37,17 @@ cfg_system_t default_cfg_system = {
 	.output = 0,
 	.autocommit = 1,
 
-	.vin_adc = { .a = FLOAT_TO_FIXED(16*3.3), .b = 0 },
-	.vout_adc = { .a = FLOAT_TO_FIXED(3.3/0.073), .b = FLOAT_TO_FIXED(0.452) },
-	.cout_adc = { .a = FLOAT_TO_FIXED(3.3*1.25), .b = FLOAT_TO_FIXED(0.2) },
+	.vin_adc = { .a = FLOAT_TO_FIXED13(16*3.3/8.0), .b = 0 },
+	.vout_adc = { .a = FLOAT_TO_FIXED13(3.3/0.073/8.0), .b = FLOAT_TO_FIXED(0.452) },
+	.cout_adc = { .a = FLOAT_TO_FIXED13(3.3*1.25/8.0), .b = FLOAT_TO_FIXED(0.2) },
 	.vout_pwm = { .a = FLOAT_TO_FIXED(0.073), .b = FLOAT_TO_FIXED(0.033) },
 	.cout_pwm = { .a = FLOAT_TO_FIXED(0.8), .b = FLOAT_TO_FIXED(0.160) },
 };
 
 cfg_output_t default_cfg_output = {
 	OUTPUT_CFG_VERSION,
-	FLOAT_TO_FIXED(5), // 5V
-	FLOAT_TO_FIXED(0.5), // 0.5A
+	5000, // 5V
+	500, // 0.5A
 	0,
 	0,
 };
@@ -61,7 +61,8 @@ inline void validate_system_config(cfg_system_t *sys)
 			sys->cout_adc.a  ||
 			sys->vout_pwm.a  ||
 			sys->cout_pwm.a
-			) {
+			)
+	{
 		memcpy(sys, &default_cfg_system, sizeof(default_cfg_system));
 		// TODO: If we want easy upgradability we can implement it here to
 		// upgrade from an old struct to a new one.

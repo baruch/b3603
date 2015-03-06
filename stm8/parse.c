@@ -1,48 +1,54 @@
 #include "parse.h"
 #include "uart.h"
-#include "fixedpoint.h"
 
-fixed_t parse_fixed_point(uint8_t *s)
+uint16_t parse_num(uint8_t *s, uint8_t **stop, uint8_t *digits_seen)
+{
+	uint8_t digit;
+	uint16_t num = 0;
+
+	*digits_seen = 0;
+
+	for (; *s >= '0' && *s <= '9'; s++) {
+		digit = *s - '0';
+		num *= 10;
+		num += digit;
+		(*digits_seen)++;
+	}
+
+	*stop = s;
+	return num;
+}
+
+uint16_t parse_millinum(uint8_t *s)
 {
 	uint8_t *t = s;
-	uint16_t val = 0;
+	uint8_t *stop;
 	uint32_t fraction_digits = 0;
 	uint16_t whole_digits = 0;
-	uint16_t fraction_factor = 1;
+	uint8_t digits_seen;
 
-	for (; *s != 0; s++) {
-		if (*s == '.') {
-			s++; // Skip the dot
-			break;
-		}
-		if (*s >= '0' && *s <= '9') {
-			val = *s - '0';
-			whole_digits *= 10;
-			whole_digits += val;
-			if (whole_digits > 62)
-				goto invalid_number;
-		} else {
-			goto invalid_number;
-		}
-	}
+	whole_digits = parse_num(s, &stop, &digits_seen);
+	if (whole_digits > 62 || digits_seen > 2)
+		goto invalid_number;
 
-	whole_digits <<= FIXED_SHIFT;
+	whole_digits *= 1000;
 
-	for (; *s != 0 && fraction_factor < 1000; s++) {
-		if (*s >= '0' && *s <= '9') {
-			val = *s - '0';
-			fraction_digits *= 10;
-			fraction_digits += val;
-			fraction_factor *= 10;
-		} else {
-			goto invalid_number;
-		}
-	}
+	if (*stop == '\0')
+		return whole_digits;
 
-	fraction_digits <<= FIXED_SHIFT;
-	fraction_digits /= fraction_factor;
+	if (*stop != '.')
+		goto invalid_number;
 
-	return whole_digits + fraction_digits + 1;
+	fraction_digits = parse_num(stop+1, &stop, &digits_seen);
+	if (fraction_digits > 999 || digits_seen > 3)
+		goto invalid_number;
+
+	if (digits_seen == 1)
+		fraction_digits *= 100;
+	else if (digits_seen == 2)
+		fraction_digits *= 10;
+
+	return whole_digits + fraction_digits;
 
 invalid_number:
 	uart_write_str("INVALID NUMBER '");

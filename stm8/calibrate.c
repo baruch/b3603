@@ -18,21 +18,19 @@ inline void calibrate_calc(struct calibrate_points *points, calibrate_t *c)
 		uint32_t tmp3;
 
 		tmp1 = (points[1].set_point - points[0].set_point);
-		tmp1 <<= FIXED_SHIFT;
+		tmp1 <<= FIXED_SHIFT13;
 		tmp3 = points[1].val - points[0].val;
 		tmp1 /= tmp3;
 
-		tmp2 = points[0].val;
-		tmp2 *= tmp1;
-		tmp2 >>= 10; // This is adc value, always a fraction of 10 bits, not dependent on FIXED_SHIFT
-		while (tmp2 < points[0].set_point)
+		tmp2 = fixed_mult13(points[1].val, tmp1);
+		while (tmp2 < points[1].set_point)
 		{
-			tmp2 = points[0].val;
+			tmp2 = points[1].val;
 			tmp1++;
 			tmp2 *= tmp1;
 			tmp2 >>= FIXED_SHIFT;
 		}
-		tmp2 -= points[0].set_point;
+		tmp2 -= points[1].set_point;
 
 		c->a = tmp1;
 		c->b = tmp2;

@@ -24,10 +24,10 @@ b3603.ihx: $(OBJ)
 	@mv .$<.tmp.d .$<.d
 	@$(SDCC) -c -o $@ $<
 
-test_pwm_accuracy: test_pwm_accuracy.c parse.c outputs.c config.c fixedpoint.c
+test_pwm_accuracy: test_pwm_accuracy.c outputs.c config.c fixedpoint.c
 	gcc -g -Wall -o $@ $< -DTEST=1
 
-test_adc_accuracy: test_adc_accuracy.c config.c
+test_adc_accuracy: test_adc_accuracy.c config.c adc.c fixedpoint.c
 	gcc -g -Wall -o $@ $< -DTEST=1
 
 test_parse: test_parse.c parse.c

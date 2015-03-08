@@ -12,6 +12,8 @@ void uart_write_fixed_point(uint16_t f) { (void)f; }
 #include <stdio.h>
 #include <memory.h>
 
+int failed;
+
 void test_calibration(uint16_t y1, uint16_t x1, uint16_t y2, uint16_t x2, uint16_t expected_a, uint16_t expected_b)
 {
 	calibrate_t c;
@@ -28,15 +30,18 @@ void test_calibration(uint16_t y1, uint16_t x1, uint16_t y2, uint16_t x2, uint16
 				y2, x2,
 				c.a, c.b,
 				expected_a, expected_b);
+		failed = 1;
 	}
 
 	back = adc_to_volt(x1, &c);
 	if (back != y1) {
 		printf("Result of calibration is not perfect for x1/y1, got %u expected %u\n", back, y1);
+		failed = 1;
 	}
 	back = adc_to_volt(x2, &c);
 	if (back != y2) {
 		printf("Result of calibration is not perfect for x2/y2, got %u expected %u\n", back, y2);
+		failed = 1;
 	}
 }
 
@@ -45,7 +50,10 @@ void test_calibration(uint16_t y1, uint16_t x1, uint16_t y2, uint16_t x2, uint16
 int main()
 {
 
-	TEST_CALIBRATE(5930, 892, 10700, 1623, 6681, 109);
+	TEST_CALIBRATE(1935, 447, 4360, 877, 46199, 585);
+
+	if (!failed)
+		printf("OK!\n");
 
 	return 0;
 }

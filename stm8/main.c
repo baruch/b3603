@@ -326,6 +326,10 @@ void process_input()
 				calibrate_vout(1, parse_millinum(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc);
 			} else if (strcmp(uart_read_buf, "CALVOUT2") == 0) {
 				calibrate_vout(2, parse_millinum(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc);
+			} else if (strcmp(uart_read_buf, "CALCOUT1") == 0) {
+				calibrate_cout(1, parse_millinum(uart_read_buf+idx+1), state.cout_raw, &cfg_system.cout_adc);
+			} else if (strcmp(uart_read_buf, "CALCOUT2") == 0) {
+				calibrate_cout(2, parse_millinum(uart_read_buf+idx+1), state.cout_raw, &cfg_system.cout_adc);
 			} else {
 				uart_write_str("UNKNOWN COMMAND!\r\n");
 			}

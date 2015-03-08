@@ -3,12 +3,13 @@
 #include "fixedpoint.h"
 
 struct calibrate_points {
-	fixed_t set_point;
+	uint16_t set_point;
 	uint16_t val;
 };
 
 struct calibrate_points vin_points[2];
 struct calibrate_points vout_points[2];
+struct calibrate_points cout_points[2];
 
 inline void calibrate_calc(struct calibrate_points *points, calibrate_t *c)
 {
@@ -37,7 +38,7 @@ inline void calibrate_calc(struct calibrate_points *points, calibrate_t *c)
 	}
 }
 
-static void calibrate_point(struct calibrate_points *points, int point, fixed_t set_point, uint16_t adc_val, calibrate_t *c)
+static void calibrate_point(struct calibrate_points *points, int point, uint16_t set_point, uint16_t adc_val, calibrate_t *c)
 {
 	if (point < 1 && point > 2)
 		return;
@@ -55,14 +56,20 @@ static void calibrate_point(struct calibrate_points *points, int point, fixed_t 
 	calibrate_calc(points, c);
 }
 
-void calibrate_vin(int point, fixed_t set_point, uint16_t adc_val, calibrate_t *c)
+void calibrate_vin(int point, uint16_t set_point, uint16_t adc_val, calibrate_t *c)
 {
 	uart_write_str("CALVIN");
 	calibrate_point(vin_points, point, set_point, adc_val, c);
 }
 
-void calibrate_vout(int point, fixed_t set_point, uint16_t adc_val, calibrate_t *c)
+void calibrate_vout(int point, uint16_t set_point, uint16_t adc_val, calibrate_t *c)
 {
 	uart_write_str("CALVOUT");
 	calibrate_point(vout_points, point, set_point, adc_val, c);
+}
+
+void calibrate_cout(int point, uint16_t set_point, uint16_t adc_val, calibrate_t *c)
+{
+	uart_write_str("CALCOUT");
+	calibrate_point(cout_points, point, set_point, adc_val, c);
 }

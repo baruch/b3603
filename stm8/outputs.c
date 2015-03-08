@@ -18,6 +18,7 @@
 
 #include "outputs.h"
 #include "fixedpoint.h"
+#include "uart.h"
 
 #include "stm8s.h"
 
@@ -95,6 +96,9 @@ uint16_t pwm_from_set(fixed_t set, calibrate_t *cal)
 inline void control_voltage(cfg_output_t *cfg, cfg_system_t *sys)
 {
 	uint16_t ctr = pwm_from_set(cfg->vset, &sys->vout_pwm);
+	uart_write_str("PWM VOLTAGE ");
+	uart_write_int(ctr);
+	uart_write_str("\r\n");
 
 	TIM2_CCR1H = ctr >> 8;
 	TIM2_CCR1L = ctr & 0xFF;
@@ -104,6 +108,9 @@ inline void control_voltage(cfg_output_t *cfg, cfg_system_t *sys)
 inline void control_current(cfg_output_t *cfg, cfg_system_t *sys)
 {
 	uint16_t ctr = pwm_from_set(cfg->cset, &sys->cout_pwm);
+	uart_write_str("PWM CURRENT ");
+	uart_write_int(ctr);
+	uart_write_str("\r\n");
 
 	TIM1_CCR1H = ctr >> 8;
 	TIM1_CCR1L = ctr & 0xFF;

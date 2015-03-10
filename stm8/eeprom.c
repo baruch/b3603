@@ -44,7 +44,7 @@ uint8_t eeprom_set_afr0(void)
 	FLASH_NCR2 = ~FLASH_NCR2_NOPT; // Remove the NOPT bit
 
 	OPT2 = 1;
-	NOPT2 = ~1;
+	NOPT2 = 0xFE;
 	for (timeout = 0xFFFF; timeout > 0; timeout--) {
 		sr = FLASH_IAPSR;
 		if (sr & FLASH_IAPSR_EOP)

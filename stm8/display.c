@@ -19,6 +19,8 @@
 #include "display.h"
 #include "stm8s.h"
 
+#include <string.h>
+
 uint8_t display_idx;
 uint8_t display_data[4];
 uint8_t pending_display_data[4];
@@ -64,10 +66,7 @@ void display_refresh(void)
 	if (timer > 0)
 		timer--;
 	if (pending_update && timer == 0) {
-		display_data[0] = pending_display_data[0];
-		display_data[1] = pending_display_data[1];
-		display_data[2] = pending_display_data[2];
-		display_data[3] = pending_display_data[3];
+		memcpy(display_data, pending_display_data, sizeof(display_data));
 		pending_update = 0;
 		timer = 1500; // 1/2 of a second, approximately
 	}

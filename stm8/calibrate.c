@@ -63,7 +63,7 @@ static void calibrate_point(struct calibrate_points *points, int point, uint16_t
 
 	uart_write_ch('0' + point);
 	uart_write_str(": VIN=");
-	uart_write_fixed_point(set_point);
+	uart_write_millivolt(set_point);
 	uart_write_str(" ADC=");
 	uart_write_int(adc_val);
 	uart_write_str("\r\n");

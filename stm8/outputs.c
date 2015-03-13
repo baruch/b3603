@@ -79,16 +79,16 @@ uint16_t pwm_from_set(fixed_t set, calibrate_t *cal)
 	uint32_t tmp;
 
 	// x*a
-	tmp = fixed_mult13(((uint32_t)set)<<3, ((uint32_t)cal->a)<<3);
+	tmp = fixed_mult13(((uint32_t)set)<<3, (uint32_t)cal->a);
 
 	// x*a + b
-	tmp += cal->b << 3;
+	tmp += cal->b;
 
 	// (x*a + b)/3.3v * PWM_VAL
 	// PWM is 0x8000 and as such amounts to a shift by 13 so to multiple by PWM
 	// we simply shift all calculations by 3 and this avoids overflows and loss
 	// of precision.
-	tmp = fixed_mult13(tmp, FLOAT_TO_FIXED13(1/3.3));
+	//tmp = fixed_mult13(tmp, FLOAT_TO_FIXED13(1/3.3));
 
 	return tmp;
 }

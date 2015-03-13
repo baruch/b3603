@@ -50,11 +50,6 @@ inline uint8_t uart_write_ready(void)
 	return (USART1_SR & USART_SR_TXE);
 }
 
-inline uint8_t uart_read_available(void)
-{
-	return (USART1_SR & USART_SR_RXNE);
-}
-
 void uart_write_ch(const char ch)
 {
 	if (uart_write_len < sizeof(uart_write_buf))
@@ -165,14 +160,12 @@ void uart_write_fixed_point13(uint16_t val)
 
 void uart_write_from_buf(void)
 {
-	if (uart_write_len > 0 && uart_write_ready()) {
-		USART1_DR = uart_write_buf[uart_write_start];
-		uart_write_start++;
-		uart_write_len--;
+	USART1_DR = uart_write_buf[uart_write_start];
+	uart_write_start++;
+	uart_write_len--;
 
-		if (uart_write_len == 0)
-			uart_write_start = 0;
-	}
+	if (uart_write_len == 0)
+		uart_write_start = 0;
 }
 
 inline uint8_t uart_read_ch(void)
@@ -183,31 +176,38 @@ inline uint8_t uart_read_ch(void)
 void uart_read_to_buf(void)
 {
 	// Don't read if we are writing
-	if (uart_write_len > 0 || !uart_write_ready())
-		return;
+	uint8_t ch = uart_read_ch();
 
-	if (uart_read_available()) {
-		uint8_t ch = uart_read_ch();
+	if (ch >= 'a' && ch <= 'z')
+		ch = ch - 'a' + 'A'; // Convert letters to uppercase
 
-		if (ch >= 'a' && ch <= 'z')
-			ch = ch - 'a' + 'A'; // Convert letters to uppercase
+	uart_read_buf[uart_read_len] = ch;
+	uart_read_len++;
 
-		uart_read_buf[uart_read_len] = ch;
-		uart_read_len++;
+	if (ch == '\r' || ch == '\n')
+		read_newline = 1;
 
-		if (ch == '\r' || ch == '\n')
-			read_newline = 1;
+	// Empty the read buf if we are overfilling and there is no full command in there
+	if (uart_read_len == sizeof(uart_read_buf) && !read_newline) {
+		uart_read_len = 0;
+		uart_write_str("READ OVERFLOW\r\n");
+	}
+}
 
-		// Empty the read buf if we are overfilling and there is no full command in there
-		if (uart_read_len == sizeof(uart_read_buf) && !read_newline) {
-			uart_read_len = 0;
-			uart_write_str("READ OVERFLOW\r\n");
-		}
+void uart_drive(void)
+{
+	uint8_t sr = USART1_SR;
+
+	if (sr & USART_SR_RXNE) {
+		uart_read_to_buf();
+	}
+	if ((sr & USART_SR_TXE) && uart_write_len) {
+		uart_write_from_buf();
 	}
 }
 
 void uart_flush_writes(void)
 {
 	while (uart_write_len > 0)
-		uart_write_from_buf();
+		uart_drive();
 }

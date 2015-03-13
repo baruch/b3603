@@ -502,10 +502,9 @@ int main()
 
 	do {
 		iwatchdog_tick();
-		uart_write_from_buf();
 		read_state();
 		display_refresh();
-		uart_read_to_buf();
+		uart_drive();
 		if (read_newline) {
 			process_input();
 		}

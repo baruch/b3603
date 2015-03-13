@@ -442,16 +442,10 @@ void read_state(void)
 					uint8_t ch3;
 					uint8_t ch4;
 
-					val = state.vin >> FIXED_SHIFT;
-
-					ch2 = '0' + (val % 10);
-					ch1 = '0' + (val / 10) % 10;
-
-					val = state.vin & FIXED_FRACTION_MASK;
-					val = fixed_mult(val, 100);
-
-					ch4 = '0' + (val % 10);
-					ch3 = '0' + (val / 10) % 10;
+					ch1 = '0' + (val / 10000) % 10;
+					ch2 = '0' + (val / 1000) % 10;
+					ch3 = '0' + (val / 100) % 10;
+					ch4 = '0' + (val / 10 ) % 10;
 
 					display_show(ch1, 0, ch2, 1, ch3, 0, ch4, 0);
 				}

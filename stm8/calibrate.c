@@ -47,7 +47,7 @@ inline void calibrate_calc(struct calibrate_points *points, calibrate_t *c)
 			tmp2 = points[1].val;
 			tmp1++;
 			tmp2 *= tmp1;
-			tmp2 >>= FIXED_SHIFT;
+			tmp2 >>= FIXED_SHIFT13;
 		}
 		tmp2 -= points[1].set_point;
 

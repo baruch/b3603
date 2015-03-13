@@ -241,14 +241,14 @@ void process_input()
 		uart_write_fixed_point13(cfg_system.cout_adc.b);
 		uart_write_str("\r\n");
 		uart_write_str("CALIBRATE VOUT PWM: ");
-		uart_write_fixed_point(cfg_system.vout_pwm.a);
+		uart_write_fixed_point13(cfg_system.vout_pwm.a);
 		uart_write_ch('/');
-		uart_write_fixed_point(cfg_system.vout_pwm.b);
+		uart_write_fixed_point13(cfg_system.vout_pwm.b);
 		uart_write_str("\r\n");
 		uart_write_str("CALIBRATE COUT PWM: ");
-		uart_write_fixed_point(cfg_system.cout_pwm.a);
+		uart_write_fixed_point13(cfg_system.cout_pwm.a);
 		uart_write_ch('/');
-		uart_write_fixed_point(cfg_system.cout_pwm.b);
+		uart_write_fixed_point13(cfg_system.cout_pwm.b);
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "VLIST") == 0) {
 		uart_write_str("VLIST:\r\n");

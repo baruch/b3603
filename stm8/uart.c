@@ -163,31 +163,6 @@ void uart_write_fixed_point13(uint16_t val)
 	uart_write_int(tmp);
 }
 
-void uart_write_fixed_point(uint16_t val)
-{
-	uint16_t tmp;
-
-	// Print the integer part
-	tmp = val >> FIXED_SHIFT;
-	uart_write_int(tmp);
-	uart_write_ch('.');
-
-	// Remove the integer part
-	tmp = val & FIXED_FRACTION_MASK;
-
-	// Take three decimal digits from the fraction part
-	tmp = fixed_mult(tmp, 1000);
-
-	// Pad with zeros if the number is too small
-	if (tmp < 100)
-		uart_write_ch('0');
-	if (tmp < 10)
-		uart_write_ch('0');
-
-	// Write the remaining fractional part
-	uart_write_int(tmp);
-}
-
 void uart_write_from_buf(void)
 {
 	if (uart_write_len > 0 && uart_write_ready()) {

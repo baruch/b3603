@@ -66,7 +66,9 @@ typedef struct {
 
 void config_load_system(cfg_system_t *sys);
 void config_save_system(cfg_system_t *sys);
+void config_default_system(cfg_system_t *sys);
 void config_load_output(cfg_output_t *cfg);
 void config_save_output(cfg_output_t *cfg);
+void config_default_output(cfg_output_t *cfg);
 
 #endif

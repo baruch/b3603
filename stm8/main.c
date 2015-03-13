@@ -287,6 +287,14 @@ void process_input()
 		config_save_system(&cfg_system);
 		config_save_output(&cfg_output);
 		uart_write_str("SAVED\r\n");
+	} else if (strcmp(uart_read_buf, "LOAD") == 0) {
+		config_load_system(&cfg_system);
+		config_load_output(&cfg_output);
+		autocommit();
+	} else if (strcmp(uart_read_buf, "RESTORE") == 0) {
+		config_default_system(&cfg_system);
+		config_default_output(&cfg_output);
+		autocommit();
 #if DEBUG
 	} else if (strcmp(uart_read_buf, "STUCK") == 0) {
 		// Allows debugging of the IWDG feature

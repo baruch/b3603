@@ -79,7 +79,7 @@ uint16_t pwm_from_set(fixed_t set, calibrate_t *cal)
 	uint32_t tmp;
 
 	// x*a
-	tmp = fixed_mult13(((uint32_t)set)<<3, (uint32_t)cal->a);
+	tmp = fixed_mult13((uint32_t)set, (uint32_t)cal->a);
 
 	// x*a + b
 	tmp += cal->b;

@@ -261,27 +261,27 @@ void process_input()
 		uart_write_str("CALIBRATE VIN ADC: ");
 		uart_write_fixed_point13(cfg_system.vin_adc.a);
 		uart_write_ch('/');
-		uart_write_fixed_point13(cfg_system.vin_adc.b);
+		uart_write_int(cfg_system.vin_adc.b);
 		uart_write_str("\r\n");
 		uart_write_str("CALIBRATE VOUT ADC: ");
 		uart_write_fixed_point13(cfg_system.vout_adc.a);
 		uart_write_ch('/');
-		uart_write_fixed_point13(cfg_system.vout_adc.b);
+		uart_write_int(cfg_system.vout_adc.b);
 		uart_write_str("\r\n");
 		uart_write_str("CALIBRATE COUT ADC: ");
 		uart_write_fixed_point13(cfg_system.cout_adc.a);
 		uart_write_ch('/');
-		uart_write_fixed_point13(cfg_system.cout_adc.b);
+		uart_write_int(cfg_system.cout_adc.b);
 		uart_write_str("\r\n");
 		uart_write_str("CALIBRATE VOUT PWM: ");
 		uart_write_fixed_point13(cfg_system.vout_pwm.a);
 		uart_write_ch('/');
-		uart_write_fixed_point13(cfg_system.vout_pwm.b);
+		uart_write_int(cfg_system.vout_pwm.b);
 		uart_write_str("\r\n");
 		uart_write_str("CALIBRATE COUT PWM: ");
 		uart_write_fixed_point13(cfg_system.cout_pwm.a);
 		uart_write_ch('/');
-		uart_write_fixed_point13(cfg_system.cout_pwm.b);
+		uart_write_int(cfg_system.cout_pwm.b);
 		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "VLIST") == 0) {
 		uart_write_str("VLIST:\r\n");
@@ -359,18 +359,34 @@ void process_input()
 				set_current(uart_read_buf + idx + 1);
 			} else if (strcmp(uart_read_buf, "AUTOCOMMIT") == 0) {
 				set_autocommit(uart_read_buf + idx + 1);
-			} else if (strcmp(uart_read_buf, "CALVIN1") == 0) {
+/*			} else if (strcmp(uart_read_buf, "CALVIN1") == 0) {
 				calibrate_vin(1, parse_millinum(uart_read_buf+idx+1), state.vin_raw, &cfg_system.vin_adc);
 			} else if (strcmp(uart_read_buf, "CALVIN2") == 0) {
 				calibrate_vin(2, parse_millinum(uart_read_buf+idx+1), state.vin_raw, &cfg_system.vin_adc);
 			} else if (strcmp(uart_read_buf, "CALVOUT1") == 0) {
-				calibrate_vout(1, parse_millinum(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc);
+				calibrate_vout(1, parse_millinum(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc, &cfg_system.vout_pwm);
 			} else if (strcmp(uart_read_buf, "CALVOUT2") == 0) {
-				calibrate_vout(2, parse_millinum(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc);
+				calibrate_vout(2, parse_millinum(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc, &cfg_system.vout_pwm);
 			} else if (strcmp(uart_read_buf, "CALCOUT1") == 0) {
-				calibrate_cout(1, parse_millinum(uart_read_buf+idx+1), state.cout_raw, &cfg_system.cout_adc);
+				calibrate_cout(1, parse_millinum(uart_read_buf+idx+1), state.cout_raw, &cfg_system.cout_adc, &cfg_system.cout_pwm);
 			} else if (strcmp(uart_read_buf, "CALCOUT2") == 0) {
-				calibrate_cout(2, parse_millinum(uart_read_buf+idx+1), state.cout_raw, &cfg_system.cout_adc);
+				calibrate_cout(2, parse_millinum(uart_read_buf+idx+1), state.cout_raw, &cfg_system.cout_adc, &cfg_system.cout_pwm); */
+			} else if (strcmp(uart_read_buf, "CALVOUTADCA") == 0) {
+				parse_uint("ADC VOUT A", &cfg_system.vout_adc.a, uart_read_buf+idx+1);
+			} else if (strcmp(uart_read_buf, "CALVOUTADCB") == 0) {
+				parse_uint("ADC VOUT B", &cfg_system.vout_adc.b, uart_read_buf+idx+1);
+			} else if (strcmp(uart_read_buf, "CALVOUTPWMA") == 0) {
+				parse_uint("PWM VOUT A", &cfg_system.vout_pwm.a, uart_read_buf+idx+1);
+			} else if (strcmp(uart_read_buf, "CALVOUTPWMB") == 0) {
+				parse_uint("PWM VOUT B", &cfg_system.vout_pwm.b, uart_read_buf+idx+1);
+			} else if (strcmp(uart_read_buf, "CALCOUTADCA") == 0) {
+				parse_uint("ADC COUT A", &cfg_system.cout_adc.a, uart_read_buf+idx+1);
+			} else if (strcmp(uart_read_buf, "CALCOUTADCB") == 0) {
+				parse_uint("ADC COUT B", &cfg_system.cout_adc.b, uart_read_buf+idx+1);
+			} else if (strcmp(uart_read_buf, "CALCOUTPWMA") == 0) {
+				parse_uint("PWM COUT A", &cfg_system.cout_pwm.a, uart_read_buf+idx+1);
+			} else if (strcmp(uart_read_buf, "CALCOUTPWMB") == 0) {
+				parse_uint("PWM COUT B", &cfg_system.cout_pwm.b, uart_read_buf+idx+1);
 			} else {
 				uart_write_str("UNKNOWN COMMAND!\r\n");
 			}

@@ -1,4 +1,4 @@
-SRC=main.c display.c uart.c eeprom.c outputs.c config.c calibrate.c fixedpoint.c parse.c adc.c
+SRC=main.c display.c uart.c eeprom.c outputs.c config.c fixedpoint.c parse.c adc.c
 CFLAGS= -lstm8 -mstm8 --opt-code-size --std-c99
 OBJ=$(SRC:.c=.rel)
 DEP=$(SRC:%.c=.%.c.d)
@@ -31,9 +31,6 @@ test_adc_accuracy: test_adc_accuracy.c config.c adc.c fixedpoint.c
 	gcc -g -Wall -o $@ $< -DTEST=1
 
 test_parse: test_parse.c parse.c
-	gcc -g -Wall -o $@ $< -DTEST=1
-
-test_calibration: test_calibration.c calibrate.c
 	gcc -g -Wall -o $@ $< -DTEST=1
 
 clean:

@@ -38,10 +38,10 @@ cfg_system_t default_cfg_system = {
 	.autocommit = 1,
 
 	.vin_adc = { .a = FLOAT_TO_FIXED13(16*3.3/8.0), .b = 0 },
-	.vout_adc = { .a = FLOAT_TO_FIXED13(3.3/0.073/8.0), .b = FLOAT_TO_FIXED13(0.452) },
-	.cout_adc = { .a = FLOAT_TO_FIXED13(3.3*1.25/8.0), .b = FLOAT_TO_FIXED13(0.2) },
-	.vout_pwm = { .a = FLOAT_TO_FIXED13(0.073/3.3), .b = FLOAT_TO_FIXED13(0.033) },
-	.cout_pwm = { .a = FLOAT_TO_FIXED13(0.8/3.3), .b = FLOAT_TO_FIXED13(0.160) },
+	.vout_adc = { .a = FLOAT_TO_FIXED13(3.3/0.073/8.0), .b = 452 },
+	.cout_adc = { .a = FLOAT_TO_FIXED13(3.3*1.25/8.0), .b = 200 },
+	.vout_pwm = { .a = FLOAT_TO_FIXED13(8*0.073/3.3), .b = 33 },
+	.cout_pwm = { .a = FLOAT_TO_FIXED13(8*0.8/3.3), .b = 160 },
 };
 
 cfg_output_t default_cfg_output = {

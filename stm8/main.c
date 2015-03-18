@@ -29,7 +29,6 @@
 #include "uart.h"
 #include "eeprom.h"
 #include "outputs.h"
-#include "calibrate.h"
 #include "config.h"
 #include "parse.h"
 #include "adc.h"

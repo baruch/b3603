@@ -21,8 +21,7 @@
 
 #include <stdint.h>
 #include "fixedpoint.h"
-#include "calibrate.h"
-#include "stm8s.h"
+#include "config.h"
 
 void adc_init(void);
 void adc_start(uint8_t channel);

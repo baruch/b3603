@@ -17,6 +17,7 @@
  */
 
 #define FW_VERSION "0.1"
+#define MODEL "B3603"
 
 #include "stm8s.h"
 #include <string.h>
@@ -209,17 +210,49 @@ void write_int(const char *prefix, uint16_t val)
 	uart_write_str("\r\n");
 }
 
+uint16_t _parse_uint(uint8_t *s)
+{
+	uint16_t val = 0;
+
+	for (; *s; s++) {
+		uint8_t ch = *s;
+		if (ch >= '0' && ch <= '9') {
+			val = val*10 + (ch-'0');
+		} else {
+			return 0xFFFF;
+		}
+	}
+
+	return val;
+}
+
+void parse_uint(const char *name, uint16_t *pval, uint8_t *s)
+{
+	uint16_t val = _parse_uint(s);
+	if (val == 0xFFFF) {
+		uart_write_str("FAILED TO PARSE ");
+		uart_write_str(s);
+		uart_write_str(" FOR ");
+		uart_write_str(name);
+	} else {
+		*pval = val;
+		uart_write_str("CALIBRATION SET ");
+		uart_write_str(name);
+	}
+	uart_write_str("\r\n");
+}
+
 void process_input()
 {
 	// Eliminate the CR/LF character
 	uart_read_buf[uart_read_len-1] = 0;
 
 	if (strcmp(uart_read_buf, "MODEL") == 0) {
-		uart_write_str("MODEL: B3606\r\n");
+		uart_write_str("MODEL: " MODEL "\r\n");
 	} else if (strcmp(uart_read_buf, "VERSION") == 0) {
 		uart_write_str("VERSION: " FW_VERSION "\r\n");
 	} else if (strcmp(uart_read_buf, "SYSTEM") == 0) {
-		uart_write_str("MODEL: B3606\r\n" "VERSION: " FW_VERSION "\r\n");
+		uart_write_str("MODEL: " MODEL "\r\n" "VERSION: " FW_VERSION "\r\n");
 
 		write_str("NAME: ", cfg_system.name);
 		write_onoff("ONSTARTUP: ", cfg_system.default_on);
@@ -492,7 +525,7 @@ int main()
 
 	config_load();
 
-	uart_write_str("\r\nB3606 starting: Version " FW_VERSION "\r\n");
+	uart_write_str("\r\n" MODEL " starting: Version " FW_VERSION "\r\n");
 
 	ensure_afr0_set();
 

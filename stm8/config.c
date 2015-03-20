@@ -25,7 +25,7 @@
 #define SYSTEM_CONFIG ((cfg_system_t *)0x4000)
 #define OUTPUT_CONFIG ((cfg_output_t *)0x4040)
 
-#define SYSTEM_CFG_VERSION 1
+#define SYSTEM_CFG_VERSION 2
 #define OUTPUT_CFG_VERSION 1
 
 #define DEFAULT_NAME_STR "Unnamed"
@@ -37,11 +37,11 @@ cfg_system_t default_cfg_system = {
 	.output = 0,
 	.autocommit = 1,
 
-	.vin_adc = { .a = FLOAT_TO_FIXED13(16*3.3/8.0), .b = 0 },
-	.vout_adc = { .a = FLOAT_TO_FIXED13(3.3/0.073/8.0), .b = 452 },
-	.cout_adc = { .a = FLOAT_TO_FIXED13(3.3*1.25/8.0), .b = 200 },
-	.vout_pwm = { .a = FLOAT_TO_FIXED13(8*0.073/3.3), .b = 33 },
-	.cout_pwm = { .a = FLOAT_TO_FIXED13(8*0.8/3.3), .b = 160 },
+	.vin_adc = { .a = FLOAT_TO_FIXED(16*3.3/8.0), .b = 0 },
+	.vout_adc = { .a = FLOAT_TO_FIXED(3.3/0.073/8.0), .b = FLOAT_TO_FIXED(452) },
+	.cout_adc = { .a = FLOAT_TO_FIXED(3.3*1.25/8.0), .b = FLOAT_TO_FIXED(200) },
+	.vout_pwm = { .a = FLOAT_TO_FIXED(8*0.073/3.3), .b = FLOAT_TO_FIXED(33) },
+	.cout_pwm = { .a = FLOAT_TO_FIXED(8*0.8/3.3), .b = FLOAT_TO_FIXED(160) },
 };
 
 cfg_output_t default_cfg_output = {

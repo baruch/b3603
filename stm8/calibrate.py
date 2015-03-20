@@ -95,12 +95,21 @@ class B3603(object):
         vin = 0
         vout = 0
         cout = 0
+        vin_calc = 0
+        vout_calc = 0
+        cout_calc = 0
         constant = 'UNKNOWN'
 
         for line in lines:
             part = line.split(':')
             if part[0] == 'OUTPUT':
                 output = part[1].strip()
+            elif part[0] == 'VOLTAGE IN':
+                vin_calc = float(part[1].strip())
+            elif part[0] == 'VOLTAGE OUT':
+                vout_calc = float(part[1].strip())
+            elif part[0] == 'CURRENT OUT':
+                cout_calc = float(part[1].strip())
             elif part[0] == 'VOLTAGE IN ADC':
                 vin = float(part[1].strip())
             elif part[0] == 'VOLTAGE OUT ADC':
@@ -110,7 +119,7 @@ class B3603(object):
             elif part[0] == 'CONSTANT':
                 constant = part[1].strip()
 
-        return dict(output=output, vin_adc=vin, vout_adc=vout, cout_adc=cout, constant=constant)
+        return dict(output=output, vin_adc=vin, vout_adc=vout, cout_adc=cout, constant=constant, vin_calc=vin_calc, vout_calc=vout_calc, cout_calc=cout_calc)
 
 
     def output_on(self):
@@ -174,6 +183,7 @@ class Multimeter(object):
             if s != None:
                 return s
             print 'Failed to read stable value, trying again, maybe'
+            time.sleep(1)
         return None
 
 def lse(xdata, ydata):
@@ -236,12 +246,14 @@ def auto_calibration():
             print 'Vout is %s and Vin is %s, this means that pwm calibration is saturated and the test will be meaningless' % (vout, vin)
             valid = False
             break
-        adc_vout = psu.rstatus()['vout_adc']
+        rstatus = psu.rstatus()
+        adc_vout = rstatus['vout_adc']
+        vout_calc = rstatus['vout_calc']
 
         pwm_data.append(pwm_vout)
         adc_data.append(adc_vout)
         vout_data.append(int(vout*1000))
-        print 'Step %d Set voltage %f Read voltage %f PWM %s ADC %s' % (step, volt, vout, pwm_vout, adc_vout)
+        print 'Step %d Set voltage %f Read voltage %f PWM %s ADC %s (%s)' % (step, volt, vout, pwm_vout, adc_vout, vout_calc)
 
     print psu.output_off()
 
@@ -251,20 +263,22 @@ def auto_calibration():
 
     print 'ADC'
     val = lse(adc_data, vout_data)
-    adc_a = int(val[0]*8192)
-    adc_b = int(val[1])
-    print val, adc_a, adc_b
-    if adc_b < 0:
-        adc_b = -adc_b
+    adc_a = int(val[0]*65536)
+    adc_b_tmp = val[1]
+    if adc_b_tmp < 0:
+        adc_b_tmp = -adc_b_tmp
     else:
         print 'Expected ADC_B to be negative... for some reason it\'ts not'
+        adc_b_tmp = 0
+    adc_b = int(adc_b_tmp*65536)
+    print val, adc_a, adc_b
     print psu.command('CALVOUTADCA %d' % adc_a)
     print psu.command('CALVOUTADCB %d' % adc_b)
     print
     print 'PWM'
     val = lse(vout_data, pwm_data)
-    pwm_a = int(val[0]*8192)
-    pwm_b = int(val[1])
+    pwm_a = int(val[0]*65536)
+    pwm_b = int(val[1]*65536)
     print val, pwm_a, pwm_b
     print psu.command('CALVOUTPWMA %d' % pwm_a)
     print psu.command('CALVOUTPWMB %d' % pwm_b)

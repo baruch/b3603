@@ -34,8 +34,8 @@ typedef struct {
 // y = a*x + b
 // where a and b are the coefficients, x is the input and y the calculated output
 typedef struct {
-	fixed_t a;
-	fixed_t b;
+	uint32_t a;
+	uint32_t b;
 } calibrate_t;
 
 typedef struct {

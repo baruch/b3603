@@ -22,20 +22,14 @@
  * We save one extra bit temporarily and if it is 1 we round up and if it is 0
  * we round down.
  */
-uint32_t fixed_mult13(uint32_t x, uint32_t y)
+uint32_t fixed_round(uint32_t x)
 {
-	uint32_t tmp;
 	uint8_t round;
 
-	tmp = x;
-	tmp *= y;
-	tmp >>= FIXED_SHIFT13-1;
+	x >>= FIXED_SHIFT-1;
 
-	round = tmp&1;
-	tmp = tmp >> 1;
+	round = x&1;
+	x >>= 1;
 
-	if (round)
-		return tmp+1;
-	else
-		return tmp;
+	return x+round;
 }

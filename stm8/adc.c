@@ -55,14 +55,16 @@ void adc_start(uint8_t channel)
 
 fixed_t adc_to_volt(uint16_t adc, calibrate_t *cal)
 {
-	fixed_t tmp;
+	uint32_t tmp;
 
-	tmp = fixed_mult13(adc, cal->a);
+	tmp = adc * cal->a;
 
 	if (tmp > cal->b)
 		tmp -= cal->b;
+	else
+		tmp = 0;
 
-	return tmp;
+	return fixed_round(tmp);
 }
 
 inline uint16_t _adc_read(void)

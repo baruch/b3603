@@ -6,7 +6,6 @@ import time
 import csv
 import os
 import math
-import numpy
 
 def calc_average(data):
     return reduce(lambda x,y: x+y, data) / len(data)
@@ -186,12 +185,24 @@ class Multimeter(object):
         return None
 
 def lse(xdata, ydata):
-    x = numpy.array(xdata)
-    X = numpy.vstack([x, numpy.ones(len(x))]).T
-    y = numpy.array(ydata)
+    assert(len(xdata) == len(ydata))
+    sum_xy = 0
+    sum_x = 0
+    sum_y = 0
+    sum_x2 = 0
+    n = len(xdata)
+    for i in xrange(n):
+        x_i = xdata[i]
+        y_i = ydata[i]
+        sum_xy += x_i*y_i
+        sum_x += x_i
+        sum_y += y_i
+        sum_x2 += x_i*x_i
 
-    a = numpy.linalg.lstsq(X, y)[0]
-    return (a[0], a[1])
+    alpha = (n * sum_xy - sum_x*sum_y) / (n * sum_x2 - sum_x*sum_x)
+    beta = (sum_y - alpha * sum_x) / n
+
+    return (alpha, beta)
 
 def auto_calibration():
     psu = B3603(sys.argv[2])

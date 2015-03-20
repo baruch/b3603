@@ -130,7 +130,6 @@ class B3603(object):
 
     def voltage(self, v):
         lines = self.command("VOLTAGE %.2f" % v)
-        print lines
         pwm_vout = None
         pwm_cout = None
         for line in lines:

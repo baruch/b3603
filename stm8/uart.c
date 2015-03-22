@@ -156,7 +156,7 @@ void uart_write_millivolt(uint16_t val)
 
 	highest_nonzero = int_to_digits(val);
 
-	for (i = highest_nonzero-1; i > 0; i--) {
+	for (i = highest_nonzero-1; i >= 0; i--) {
 		if (i == 2)
 			uart_write_ch('.');
 		uart_write_ch(digits_buf[i]);

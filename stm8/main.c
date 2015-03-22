@@ -420,6 +420,7 @@ void process_input()
 			uart_write_str("UNKNOWN COMMAND\r\n");
 		}
 	}
+	uart_write_str("DONE\r\n");
 
 	uart_read_len = 0;
 	read_newline = 0;

@@ -307,40 +307,38 @@ void process_input()
 		uart_write_int32(cfg_system.cout_pwm.a);
 		uart_write_ch('/');
 		uart_write_int32(cfg_system.cout_pwm.b);
-		uart_write_str("\r\n");
-	} else if (strcmp(uart_read_buf, "VLIST") == 0) {
-		uart_write_str("VLIST:\r\n");
-		write_millivolt("VOLTAGE MIN: ", CAP_VMIN);
-		write_millivolt("VOLTAGE MAX: ", CAP_VMAX);
-		write_millivolt("VOLTAGE STEP: ", CAP_VSTEP);
-	} else if (strcmp(uart_read_buf, "CLIST") == 0) {
-		uart_write_str("CLIST:\r\n");
-		write_milliamp("CURRENT MIN: ", CAP_CMIN);
-		write_milliamp("CURRENT MAX: ", CAP_CMAX);
-		write_milliamp("CURRENT STEP: ", CAP_CSTEP);
+		uart_write_ch('\r');
+	} else if (strcmp(uart_read_buf, "LIMITS") == 0) {
+		uart_write_str("LIMITS:\r\n");
+		write_millivolt("VMIN: ", CAP_VMIN);
+		write_millivolt("VMAX: ", CAP_VMAX);
+		write_millivolt("VSTEP: ", CAP_VSTEP);
+		write_milliamp("CMIN: ", CAP_CMIN);
+		write_milliamp("CMAX: ", CAP_CMAX);
+		write_milliamp("CSTEP: ", CAP_CSTEP);
 	} else if (strcmp(uart_read_buf, "CONFIG") == 0) {
 		uart_write_str("CONFIG:\r\n");
 		write_onoff("OUTPUT: ", cfg_system.output);
-		write_millivolt("VOLTAGE SET: ", cfg_output.vset);
-		write_milliamp("CURRENT SET: ", cfg_output.cset);
-		write_millivolt("VOLTAGE SHUTDOWN: ", cfg_output.vshutdown);
-		write_millivolt("CURRENT SHUTDOWN: ", cfg_output.cshutdown);
+		write_millivolt("VSET: ", cfg_output.vset);
+		write_milliamp("CSET: ", cfg_output.cset);
+		write_millivolt("VSHUTDOWN: ", cfg_output.vshutdown);
+		write_millivolt("CSHUTDOWN: ", cfg_output.cshutdown);
 	} else if (strcmp(uart_read_buf, "STATUS") == 0) {
 		uart_write_str("STATUS:\r\n");
 		write_onoff("OUTPUT: ", cfg_system.output);
-		write_millivolt("VOLTAGE IN: ", state.vin);
-		write_millivolt("VOLTAGE OUT: ", state.vout);
-		write_milliamp("CURRENT OUT: ", state.cout);
+		write_millivolt("VIN: ", state.vin);
+		write_millivolt("VOUT: ", state.vout);
+		write_milliamp("COUT: ", state.cout);
 		write_str("CONSTANT: ", state.constant_current ? "CURRENT" : "VOLTAGE");
 	} else if (strcmp(uart_read_buf, "RSTATUS") == 0) {
 		uart_write_str("RSTATUS:\r\n");
 		write_onoff("OUTPUT: ", cfg_system.output);
-		write_int("VOLTAGE IN ADC: ", state.vin_raw);
-		write_millivolt("VOLTAGE IN: ", state.vin);
-		write_int("VOLTAGE OUT ADC: ", state.vout_raw);
-		write_millivolt("VOLTAGE OUT: ", state.vout);
-		write_int("CURRENT OUT ADC: ", state.cout_raw);
-		write_milliamp("CURRENT OUT: ", state.cout);
+		write_int("VIN ADC: ", state.vin_raw);
+		write_millivolt("VIN: ", state.vin);
+		write_int("VOUT ADC: ", state.vout_raw);
+		write_millivolt("VOUT: ", state.vout);
+		write_int("COUT ADC: ", state.cout_raw);
+		write_milliamp("COUT: ", state.cout);
 		write_str("CONSTANT: ", state.constant_current ? "CURRENT" : "VOLTAGE");
 	} else if (strcmp(uart_read_buf, "COMMIT") == 0) {
 		commit_output();

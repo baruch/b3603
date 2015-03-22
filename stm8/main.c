@@ -358,8 +358,8 @@ void process_input()
 	} else if (strcmp(uart_read_buf, "STUCK") == 0) {
 		// Allows debugging of the IWDG feature
 		uart_write_str("STUCK\r\n");
-		while (1)
-			uart_write_from_buf(); // Flush write buf outside
+		uart_write_flush();
+		while(1); // Induce watchdog reset
 #endif
 	} else {
 		// Process commands with arguments

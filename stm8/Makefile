@@ -14,7 +14,11 @@ LINK_0 = @echo LINK $@; $(ACTUAL_SDCC)
 LINK_1 = $(ACTUAL_SDCC)
 LINK = $(LINK_$(V))
 
+TESTUTILS=test_pwm_accuracy test_adc_accuracy test_parse
+
 all: b3603.ihx check_size
+
+test: $(TESTUTILS)
 
 -include $(DEP)
 
@@ -44,5 +48,6 @@ test_parse: test_parse.c parse.c
 
 clean:
 	-rm -f *.rel *.ihx *.lk *.map *.rst *.lst *.asm *.sym .*.d
+	-rm -f $(TESTUTILS)
 
-.PHONY: all clean check_size
+.PHONY: all clean check_size test

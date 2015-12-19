@@ -27,9 +27,10 @@ check_size: b3603.ihx
 b3603.ihx: $(OBJ)
 	$(LINK) --out-fmt-ihx --code-size 8192 -o $@ $^
 
+.%.c.d: %.c
+	@$(ACTUAL_SDCC) -M -o $@ $<
+
 %.rel: %.c
-	@$(SDCC) -M $< > .$<.tmp.d
-	@mv .$<.tmp.d .$<.d
 	$(SDCC) -c -o $@ $<
 
 test_pwm_accuracy: test_pwm_accuracy.c outputs.c config.c fixedpoint.c

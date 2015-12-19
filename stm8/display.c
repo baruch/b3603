@@ -27,7 +27,7 @@ uint8_t pending_display_data[4];
 uint8_t pending_update;
 uint16_t timer;
 
-static const display_number[10] = {
+static const uint8_t display_number[10] = {
 	0xFC, // '0'
 	0x60, // '1'
 	0xDA, // '2'

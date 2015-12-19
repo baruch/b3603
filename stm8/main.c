@@ -45,13 +45,13 @@ cfg_system_t cfg_system;
 cfg_output_t cfg_output;
 state_t state;
 
-inline iwatchdog_init(void)
+inline void iwatchdog_init(void)
 {
 	IWDG_KR = 0xCC; // Enable IWDG
 	// The default values give us about 15msec between pings
 }
 
-inline iwatchdog_tick(void)
+inline void iwatchdog_tick(void)
 {
 	IWDG_KR = 0xAA; // Reset the counter
 }

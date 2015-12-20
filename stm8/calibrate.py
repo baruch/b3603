@@ -77,11 +77,11 @@ class B3603(object):
             part = line.split(':')
             if part[0] == 'OUTPUT':
                 output = part[1].strip()
-            elif part[0] == 'VOLTAGE IN':
+            elif part[0] == 'VIN':
                 vin = float(part[1].strip())
-            elif part[0] == 'VOLTAGE OUT':
+            elif part[0] == 'VOUT':
                 vout = float(part[1].strip())
-            elif part[0] == 'CURRENT OUT':
+            elif part[0] == 'COUT':
                 cout = float(part[1].strip())
             elif part[0] == 'CONSTANT':
                 constant = part[1].strip()
@@ -103,17 +103,17 @@ class B3603(object):
             part = line.split(':')
             if part[0] == 'OUTPUT':
                 output = part[1].strip()
-            elif part[0] == 'VOLTAGE IN':
+            elif part[0] == 'VIN':
                 vin_calc = float(part[1].strip())
-            elif part[0] == 'VOLTAGE OUT':
+            elif part[0] == 'VOUT':
                 vout_calc = float(part[1].strip())
-            elif part[0] == 'CURRENT OUT':
+            elif part[0] == 'COUT':
                 cout_calc = float(part[1].strip())
-            elif part[0] == 'VOLTAGE IN ADC':
+            elif part[0] == 'VIN ADC':
                 vin = float(part[1].strip())
-            elif part[0] == 'VOLTAGE OUT ADC':
+            elif part[0] == 'VOUT ADC':
                 vout = float(part[1].strip())
-            elif part[0] == 'CURRENT OUT ADC':
+            elif part[0] == 'COUT ADC':
                 cout = float(part[1].strip())
             elif part[0] == 'CONSTANT':
                 constant = part[1].strip()

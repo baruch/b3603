@@ -454,7 +454,7 @@ inline void pinout_init()
 	// PC6 is Iout control, output
 	// PC7 is Button 1, input
 	PC_ODR = 0;
-	PC_DDR = (1<<5) || (1<<6);
+	PC_DDR = (1<<5) | (1<<6);
 	PC_CR1 = (1<<7); // For the button
 	PC_CR2 = (1<<5) | (1<<6);
 

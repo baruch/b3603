@@ -307,7 +307,7 @@ void process_input()
 		uart_write_int32(cfg_system.cout_pwm.a);
 		uart_write_ch('/');
 		uart_write_int32(cfg_system.cout_pwm.b);
-		uart_write_ch('\r');
+		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "LIMITS") == 0) {
 		uart_write_str("LIMITS:\r\n");
 		write_millivolt("VMIN: ", CAP_VMIN);

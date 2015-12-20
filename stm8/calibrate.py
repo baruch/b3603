@@ -316,7 +316,7 @@ def main():
             auto_calibration()
 
     if sys.argv[1] == '-m':
-        if len(sys.argv) != 2:
+        if len(sys.argv) != 3:
             return usage()
         else:
             manual_calibration()

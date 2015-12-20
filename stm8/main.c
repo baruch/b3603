@@ -385,6 +385,10 @@ void process_input()
 				set_current(uart_read_buf + idx + 1);
 			} else if (strcmp(uart_read_buf, "AUTOCOMMIT") == 0) {
 				set_autocommit(uart_read_buf + idx + 1);
+			} else if (strcmp(uart_read_buf, "CALVINADCA") == 0) {
+				parse_uint("VIN ADC A", &cfg_system.vin_adc.a, uart_read_buf+idx+1);
+			} else if (strcmp(uart_read_buf, "CALVINADCB") == 0) {
+				parse_uint("VIN ADC B", &cfg_system.vin_adc.b, uart_read_buf+idx+1);
 			} else if (strcmp(uart_read_buf, "CALVOUTADCA") == 0) {
 				parse_uint("VOUT ADC A", &cfg_system.vout_adc.a, uart_read_buf+idx+1);
 			} else if (strcmp(uart_read_buf, "CALVOUTADCB") == 0) {

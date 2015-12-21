@@ -385,18 +385,6 @@ void process_input()
 				set_current(uart_read_buf + idx + 1);
 			} else if (strcmp(uart_read_buf, "AUTOCOMMIT") == 0) {
 				set_autocommit(uart_read_buf + idx + 1);
-/*			} else if (strcmp(uart_read_buf, "CALVIN1") == 0) {
-				calibrate_vin(1, parse_millinum(uart_read_buf+idx+1), state.vin_raw, &cfg_system.vin_adc);
-			} else if (strcmp(uart_read_buf, "CALVIN2") == 0) {
-				calibrate_vin(2, parse_millinum(uart_read_buf+idx+1), state.vin_raw, &cfg_system.vin_adc);
-			} else if (strcmp(uart_read_buf, "CALVOUT1") == 0) {
-				calibrate_vout(1, parse_millinum(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc, &cfg_system.vout_pwm);
-			} else if (strcmp(uart_read_buf, "CALVOUT2") == 0) {
-				calibrate_vout(2, parse_millinum(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc, &cfg_system.vout_pwm);
-			} else if (strcmp(uart_read_buf, "CALCOUT1") == 0) {
-				calibrate_cout(1, parse_millinum(uart_read_buf+idx+1), state.cout_raw, &cfg_system.cout_adc, &cfg_system.cout_pwm);
-			} else if (strcmp(uart_read_buf, "CALCOUT2") == 0) {
-				calibrate_cout(2, parse_millinum(uart_read_buf+idx+1), state.cout_raw, &cfg_system.cout_adc, &cfg_system.cout_pwm); */
 			} else if (strcmp(uart_read_buf, "CALVOUTADCA") == 0) {
 				parse_uint("VOUT ADC A", &cfg_system.vout_adc.a, uart_read_buf+idx+1);
 			} else if (strcmp(uart_read_buf, "CALVOUTADCB") == 0) {

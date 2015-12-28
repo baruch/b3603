@@ -477,13 +477,16 @@ void config_load(void)
 	else
 		cfg_system.output = 0;
 
+#if DEBUG
 	state.pc3 = 1;
+#endif
 }
 
 void read_state(void)
 {
 	uint8_t tmp;
 
+#if DEBUG
 	tmp = (PC_IDR & (1<<3)) ? 1 : 0;
 	if (state.pc3 != tmp) {
 		uart_write_str("PC3 is now ");
@@ -491,6 +494,7 @@ void read_state(void)
 		uart_write_str("\r\n");
 		state.pc3 = tmp;
 	}
+#endif
 
 	tmp = (PB_IDR & (1<<5)) ? 1 : 0;
 	if (state.constant_current != tmp) {

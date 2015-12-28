@@ -61,7 +61,9 @@ typedef struct {
 	uint16_t vout; // mV
 	uint16_t cout; // mA
 	uint8_t constant_current; // If false, we are in constant voltage
+#if DEBUG
 	uint8_t pc3;
+#endif
 } state_t;
 
 void config_load_system(cfg_system_t *sys);

@@ -47,7 +47,7 @@ test_parse: test_parse.c parse.c
 	gcc -g -Wall -o $@ $< -DTEST=1
 
 clean:
-	-rm -f *.rel *.ihx *.lk *.map *.rst *.lst *.asm *.sym .*.d
+	-rm -f *.rel *.ihx *.lk *.map *.rst *.lst *.asm *.sym *.adb *.cdb .*.d
 	-rm -f $(TESTUTILS)
 
 .PHONY: all clean check_size test

@@ -60,12 +60,12 @@ void config_default_system(cfg_system_t *sys)
 inline void validate_system_config(cfg_system_t *sys)
 {
 	if (sys->version != SYSTEM_CFG_VERSION ||
-			sys->name[0]  ||
-			sys->vin_adc.a  ||
-			sys->vout_adc.a  ||
-			sys->cout_adc.a  ||
-			sys->vout_pwm.a  ||
-			sys->cout_pwm.a
+			sys->name[0] == 0 ||
+			sys->vin_adc.a == 0 ||
+			sys->vout_adc.a == 0 ||
+			sys->cout_adc.a == 0 ||
+			sys->vout_pwm.a == 0 ||
+			sys->cout_pwm.a == 0
 			)
 	{
 		config_default_system(sys);

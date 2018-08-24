@@ -6,6 +6,8 @@
 *.lst
 *.asm
 *.sym
+*.adb
+*.cdb
 .*.d
 test_pwm_accuracy
 test_adc_accuracy

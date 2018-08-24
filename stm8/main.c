@@ -45,13 +45,13 @@ cfg_system_t cfg_system;
 cfg_output_t cfg_output;
 state_t state;
 
-inline iwatchdog_init(void)
+inline void iwatchdog_init(void)
 {
 	IWDG_KR = 0xCC; // Enable IWDG
 	// The default values give us about 15msec between pings
 }
 
-inline iwatchdog_tick(void)
+inline void iwatchdog_tick(void)
 {
 	IWDG_KR = 0xAA; // Reset the counter
 }
@@ -307,7 +307,7 @@ void process_input()
 		uart_write_int32(cfg_system.cout_pwm.a);
 		uart_write_ch('/');
 		uart_write_int32(cfg_system.cout_pwm.b);
-		uart_write_ch('\r');
+		uart_write_str("\r\n");
 	} else if (strcmp(uart_read_buf, "LIMITS") == 0) {
 		uart_write_str("LIMITS:\r\n");
 		write_millivolt("VMIN: ", CAP_VMIN);
@@ -385,34 +385,26 @@ void process_input()
 				set_current(uart_read_buf + idx + 1);
 			} else if (strcmp(uart_read_buf, "AUTOCOMMIT") == 0) {
 				set_autocommit(uart_read_buf + idx + 1);
-/*			} else if (strcmp(uart_read_buf, "CALVIN1") == 0) {
-				calibrate_vin(1, parse_millinum(uart_read_buf+idx+1), state.vin_raw, &cfg_system.vin_adc);
-			} else if (strcmp(uart_read_buf, "CALVIN2") == 0) {
-				calibrate_vin(2, parse_millinum(uart_read_buf+idx+1), state.vin_raw, &cfg_system.vin_adc);
-			} else if (strcmp(uart_read_buf, "CALVOUT1") == 0) {
-				calibrate_vout(1, parse_millinum(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc, &cfg_system.vout_pwm);
-			} else if (strcmp(uart_read_buf, "CALVOUT2") == 0) {
-				calibrate_vout(2, parse_millinum(uart_read_buf+idx+1), state.vout_raw, &cfg_system.vout_adc, &cfg_system.vout_pwm);
-			} else if (strcmp(uart_read_buf, "CALCOUT1") == 0) {
-				calibrate_cout(1, parse_millinum(uart_read_buf+idx+1), state.cout_raw, &cfg_system.cout_adc, &cfg_system.cout_pwm);
-			} else if (strcmp(uart_read_buf, "CALCOUT2") == 0) {
-				calibrate_cout(2, parse_millinum(uart_read_buf+idx+1), state.cout_raw, &cfg_system.cout_adc, &cfg_system.cout_pwm); */
+			} else if (strcmp(uart_read_buf, "CALVINADCA") == 0) {
+				parse_uint("VIN ADC A", &cfg_system.vin_adc.a, uart_read_buf+idx+1);
+			} else if (strcmp(uart_read_buf, "CALVINADCB") == 0) {
+				parse_uint("VIN ADC B", &cfg_system.vin_adc.b, uart_read_buf+idx+1);
 			} else if (strcmp(uart_read_buf, "CALVOUTADCA") == 0) {
-				parse_uint("ADC VOUT A", &cfg_system.vout_adc.a, uart_read_buf+idx+1);
+				parse_uint("VOUT ADC A", &cfg_system.vout_adc.a, uart_read_buf+idx+1);
 			} else if (strcmp(uart_read_buf, "CALVOUTADCB") == 0) {
-				parse_uint("ADC VOUT B", &cfg_system.vout_adc.b, uart_read_buf+idx+1);
+				parse_uint("VOUT ADC B", &cfg_system.vout_adc.b, uart_read_buf+idx+1);
 			} else if (strcmp(uart_read_buf, "CALVOUTPWMA") == 0) {
-				parse_uint("PWM VOUT A", &cfg_system.vout_pwm.a, uart_read_buf+idx+1);
+				parse_uint("VOUT PWM A", &cfg_system.vout_pwm.a, uart_read_buf+idx+1);
 			} else if (strcmp(uart_read_buf, "CALVOUTPWMB") == 0) {
-				parse_uint("PWM VOUT B", &cfg_system.vout_pwm.b, uart_read_buf+idx+1);
+				parse_uint("VOUT PWM B", &cfg_system.vout_pwm.b, uart_read_buf+idx+1);
 			} else if (strcmp(uart_read_buf, "CALCOUTADCA") == 0) {
-				parse_uint("ADC COUT A", &cfg_system.cout_adc.a, uart_read_buf+idx+1);
+				parse_uint("COUT ADC A", &cfg_system.cout_adc.a, uart_read_buf+idx+1);
 			} else if (strcmp(uart_read_buf, "CALCOUTADCB") == 0) {
-				parse_uint("ADC COUT B", &cfg_system.cout_adc.b, uart_read_buf+idx+1);
+				parse_uint("COUT ADC B", &cfg_system.cout_adc.b, uart_read_buf+idx+1);
 			} else if (strcmp(uart_read_buf, "CALCOUTPWMA") == 0) {
-				parse_uint("PWM COUT A", &cfg_system.cout_pwm.a, uart_read_buf+idx+1);
+				parse_uint("COUT PWM A", &cfg_system.cout_pwm.a, uart_read_buf+idx+1);
 			} else if (strcmp(uart_read_buf, "CALCOUTPWMB") == 0) {
-				parse_uint("PWM COUT B", &cfg_system.cout_pwm.b, uart_read_buf+idx+1);
+				parse_uint("COUT PWM B", &cfg_system.cout_pwm.b, uart_read_buf+idx+1);
 			} else {
 				uart_write_str("UNKNOWN COMMAND!\r\n");
 			}
@@ -454,7 +446,7 @@ inline void pinout_init()
 	// PC6 is Iout control, output
 	// PC7 is Button 1, input
 	PC_ODR = 0;
-	PC_DDR = (1<<5) || (1<<6);
+	PC_DDR = (1<<5) | (1<<6);
 	PC_CR1 = (1<<7); // For the button
 	PC_CR2 = (1<<5) | (1<<6);
 
@@ -477,13 +469,16 @@ void config_load(void)
 	else
 		cfg_system.output = 0;
 
+#if DEBUG
 	state.pc3 = 1;
+#endif
 }
 
 void read_state(void)
 {
 	uint8_t tmp;
 
+#if DEBUG
 	tmp = (PC_IDR & (1<<3)) ? 1 : 0;
 	if (state.pc3 != tmp) {
 		uart_write_str("PC3 is now ");
@@ -491,6 +486,7 @@ void read_state(void)
 		uart_write_str("\r\n");
 		state.pc3 = tmp;
 	}
+#endif
 
 	tmp = (PB_IDR & (1<<5)) ? 1 : 0;
 	if (state.constant_current != tmp) {
@@ -526,10 +522,10 @@ void read_state(void)
 					uint8_t ch3;
 					uint8_t ch4;
 
-					ch1 = '0' + (val / 10000) % 10;
-					ch2 = '0' + (val / 1000) % 10;
-					ch3 = '0' + (val / 100) % 10;
-					ch4 = '0' + (val / 10 ) % 10;
+					ch1 = '0' + (state.vin / 10000) % 10;
+					ch2 = '0' + (state.vin / 1000) % 10;
+					ch3 = '0' + (state.vin / 100) % 10;
+					ch4 = '0' + (state.vin / 10 ) % 10;
 
 					display_show(ch1, 0, ch2, 1, ch3, 0, ch4, 0);
 				}

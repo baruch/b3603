@@ -19,6 +19,11 @@
 #include "adc.h"
 #include "stm8s.h"
 
+// We only have a 10-bit ADC, so oversample for 3 bits of additional accuracy
+#define OVERSAMPLE_BITS 3
+#define OVERSAMPLE_DIVIDE (1 << OVERSAMPLE_BITS)
+#define OVERSAMPLE_COUNT (OVERSAMPLE_DIVIDE << OVERSAMPLE_BITS)
+
 static uint32_t sum;
 static uint8_t count;
 
@@ -77,7 +82,7 @@ inline uint16_t _adc_read(void)
 
 uint16_t adc_read(void)
 {
-	return sum/8;
+	return sum / OVERSAMPLE_DIVIDE;
 }
 
 uint8_t adc_channel(void)
@@ -90,7 +95,7 @@ uint8_t adc_ready(void)
 	if (ADC1_CSR & 0x80) {
 		sum += _adc_read();
 		count++;
-		if (count < 64) {
+		if (count < OVERSAMPLE_COUNT) {
 			_adc_start();
 			return 0;
 		} else {
